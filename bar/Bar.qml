@@ -118,7 +118,7 @@ Rectangle {
                 highlightMoveVelocity: -1
 
                 currentIndex: (Hyprland.focusedWorkspace.id - 1)
-                model: 20
+                model: 999
 
                 delegate: Rectangle {
                     property int wsIndex: index + 1
