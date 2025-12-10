@@ -19,14 +19,40 @@ PanelWindow {
     // --- THEME ---
     QtObject {
         id: theme
-        property color bg: "#1a1b26"       
-        property color surface: "#24283b" 
-        property color border: "#414868"
-        property color text: "#c0caf5"     
-        property color accent: "#7aa2f7"   
-        property color secondary: "#9aa5ce" 
-        property color urgent: "#f7768e"   
+
+        // Colors
+        property color bg:                "#1A1D26"
+        property color surface:           "#252932"
+        property color tile:              "#2F333D"
+        property color tileActive:        "#CBA6F7"
+        property color tileActiveAlt:     "#C4B5FD"
+        property color border:            "#2F333D"
+        property color text:              "#E8EAF0"
+        property color secondary:         "#9BA3B8"
+        property color muted:             "#6B7280"
+        property color iconMuted:         "#70727C"
+        property color iconActive:        "#FFFFFF"
+        property color accent:            "#A78BFA"
+        property color accentHover:       "#C4B5FD"
+        property color accentActive:      "#CBA6F7"
+        property color urgent:            "#EF4444"
+        property color sliderTrack:       "#3A3F4B"
+        property color sliderThumb:       "#FFFFFF"
+        property color sliderFill:        "#CBA6F7"
+
+        // Dimensions
+        property int panelWidth:          400
+        property int borderRadius:        20
+        property int contentMargins:      24
+        property int spacing:             20
+        property int toggleHeight:        88
+        property int sliderHeight:        64
+        property int notificationHeight:  80
+        property int headerAvatarSize:    48
+        property int toggleIconSize:      24
+        property int sliderIconSize:      20
     }
+
 
     // --- WINDOW SETUP ---
     anchors { top: true; bottom: true; left: true; right: true }
@@ -75,12 +101,9 @@ PanelWindow {
     Rectangle {
         anchors.fill: parent
         color: "black"
-        opacity: globalState.sidePanelOpen ? 0.3 : 0
+        opacity: globalState.sidePanelOpen ? 0.4 : 0
         Behavior on opacity { NumberAnimation { duration: 350 } }
         
-        // FIX 4: MOUSE CATCHER
-        // This MouseArea covers the whole screen *behind* the panel.
-        // It catches clicks to close the panel, fixing the "dead input" feel.
         MouseArea {
             anchors.fill: parent
             onClicked: globalState.sidePanelOpen = false
@@ -90,37 +113,36 @@ PanelWindow {
     // --- MAIN CONTENT PANEL ---
     Rectangle {
         id: content
-        width: 400
+        width: theme.panelWidth
         
-        // Layout
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        anchors.topMargin: root.topBarHeight + 15
+        anchors.topMargin: 65
         anchors.bottomMargin: 15
         anchors.rightMargin: 15
 
-        // Styles
         color: theme.bg
-        radius: 16
+        radius: theme.borderRadius
         border.width: 1
         border.color: theme.border
         clip: true
 
-        // Ensure clicks inside the panel don't close it
         MouseArea {
             anchors.fill: parent
-            hoverEnabled: true // Prevents clicks passing through to the dimmer
+            hoverEnabled: true
         }
 
-        // Animation
         transform: Translate {
             id: slideTranslate
             x: globalState.sidePanelOpen ? 0 : (content.width + 50)
             Behavior on x {
                 SpringAnimation {
                     id: slideAnim
-                    spring: 2; damping: 0.25; epsilon: 0.5; mass: 1
+                    spring: 2
+                    damping: 0.25
+                    epsilon: 0.5
+                    mass: 1
                 }
             }
         }
@@ -128,47 +150,89 @@ PanelWindow {
         // --- CONTENT LAYOUT ---
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 24
-            spacing: 24
+            anchors.margins: theme.contentMargins
+            spacing: theme.spacing
 
             // === HEADER ===
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 16
 
-                Item {
-                    Layout.preferredWidth: 54; Layout.preferredHeight: 54
-                    Image {
-                        id: avatar
-                        anchors.fill: parent
-                        source: "file://" + Quickshell.env("HOME") + "/.face"
-                        fillMode: Image.PreserveAspectCrop
-                        visible: false
-                        onStatusChanged: if (status === Image.Error) source = "../assets/avatar.jpg"
+                // Avatar Square with Arch Logo
+                Rectangle {
+                    Layout.preferredWidth: theme.headerAvatarSize
+                    Layout.preferredHeight: theme.headerAvatarSize
+                    radius: 12
+                    
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: theme.tileActive }
+                        GradientStop { position: 1.0; color: theme.accentActive }
                     }
-                    Rectangle { id: mask; anchors.fill: parent; radius: 14; visible: false }
-                    OpacityMask { anchors.fill: parent; source: avatar; maskSource: mask }
+                    
+                    layer.enabled: true
+                    layer.effect: DropShadow {
+                        transparentBorder: true
+                        horizontalOffset: 0
+                        verticalOffset: 2
+                        radius: 8
+                        samples: 17
+                        color: Qt.rgba(0, 0, 0, 0.3)
+                    }
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰣇"
+                        font.pixelSize: 28
+                        font.family: "Symbols Nerd Font"
+                        color: "#FFFFFF"
+                    }
                 }
 
+                // User Info
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 2
-                    Text { 
-                        text: Quickshell.env("USER"); 
-                        color: theme.text; font.bold: true; font.pixelSize: 20 
+                    spacing: 4
+                    
+                    Text {
+                        text: Quickshell.env("USER")
+                        color: theme.text
+                        font.bold: true
+                        font.pixelSize: 18
                         font.capitalization: Font.Capitalize
                     }
-                    Text { 
-                        text: "Matte Shell • " + Qt.formatTime(new Date(), "hh:mm"); 
-                        color: theme.secondary; font.pixelSize: 13 
+                    
+                    Text {
+                        text: "Matte Shell • " + Qt.formatTime(new Date(), "hh:mm")
+                        color: theme.secondary
+                        font.pixelSize: 13
                     }
                 }
 
-                MatteButton {
-                    Layout.preferredWidth: 44; Layout.preferredHeight: 44
-                    icon: "⏻"
-                    accentColor: theme.urgent
-                    onClicked: console.log("Logout Clicked")
+                Item { Layout.fillWidth: true }
+
+                // Power Button
+                Rectangle {
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
+                    radius: 8
+                    color: powerBtn.pressed ? theme.tile : "transparent"
+                    border.width: 1
+                    border.color: theme.border
+                    
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰐥"
+                        font.pixelSize: 18
+                        font.family: "Symbols Nerd Font"
+                        color: theme.urgent
+                    }
+                    
+                    TapHandler {
+                        id: powerBtn
+                        onTapped: console.log("Power Clicked")
+                    }
                 }
             }
 
@@ -176,73 +240,160 @@ PanelWindow {
             GridLayout {
                 Layout.fillWidth: true
                 columns: 2
-                rowSpacing: 12; columnSpacing: 12
-                MatteToggle { label: "Wi-Fi"; icon: "▼"; active: true; Layout.fillWidth: true }
-                MatteToggle { label: "Bluetooth"; icon: "✶"; active: true; Layout.fillWidth: true }
-                MatteToggle { label: "DND"; icon: "☾"; active: false; Layout.fillWidth: true }
-                MatteToggle { label: "Mic"; icon: "🎙"; active: true; Layout.fillWidth: true }
+                rowSpacing: 12
+                columnSpacing: 12
+                
+                ToggleButton {
+                    label: "WiFi"
+                    sublabel: "Connected"
+                    icon: "󰖩"
+                    active: true
+                    showChevron: true
+                    Layout.fillWidth: true
+                }
+                
+                ToggleButton {
+                    label: "Bluetooth"
+                    sublabel: "Off"
+                    icon: "󰂯"
+                    active: false
+                    showChevron: true
+                    Layout.fillWidth: true
+                }
+                
+                ToggleButton {
+                    label: "Do Not Disturb"
+                    sublabel: "Off"
+                    icon: "󰂛"
+                    active: false
+                    showChevron: false
+                    Layout.fillWidth: true
+                }
+                
+                ToggleButton {
+                    label: "Microphone"
+                    sublabel: "Active"
+                    icon: "󰍬"
+                    active: true
+                    showChevron: false
+                    Layout.fillWidth: true
+                }
             }
 
-            // === SLIDERS (FIXED) ===
+            // === SLIDERS ===
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 16
-                // Note: Layout.fillWidth is now inside the component definition below
-                MatteSlider { icon: "🕪"; value: 0.65; accentColor: theme.accent }
-                MatteSlider { icon: "☀"; value: 0.8; accentColor: theme.secondary }
+                
+                SliderControl {
+                    label: "Volume"
+                    icon: "󰕾"
+                    value: 0.65
+                }
+                
+                SliderControl {
+                    label: "Brightness"
+                    icon: "󰃠"
+                    value: 0.80
+                }
             }
 
             // === NOTIFICATIONS ===
-            Rectangle { Layout.fillWidth: true; height: 1; color: theme.surface }
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: theme.border
+            }
 
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                spacing: 10
+                spacing: 12
                 
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "NOTIFICATIONS"; color: theme.secondary; font.bold: true; font.pixelSize: 11 }
-                    Item { Layout.fillWidth: true }
+                    
                     Text {
-                        text: "Clear"
-                        color: theme.urgent; font.bold: true; font.pixelSize: 11
+                        text: "Notifications"
+                        color: theme.text
+                        font.pixelSize: 16
+                        font.weight: Font.Medium
+                    }
+                    
+                    Item { Layout.fillWidth: true }
+                    
+                    Text {
+                        text: "Clear all"
+                        color: theme.accent
+                        font.pixelSize: 13
+                        font.weight: Font.Medium
                         visible: notifManager.notifications.count > 0
-                        MouseArea { anchors.fill: parent; onClicked: notifManager.clearHistory() }
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: notifManager.clearHistory()
+                        }
                     }
                 }
 
                 ListView {
-                    Layout.fillWidth: true; Layout.fillHeight: true
-                    clip: true; spacing: 8
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    spacing: 12
                     model: notifManager.notifications
 
-                    Text {
+                    Rectangle {
                         visible: parent.count === 0
-                        text: "All caught up"
                         anchors.centerIn: parent
-                        color: theme.surface
-                        font.bold: true; font.pixelSize: 16
+                        width: parent.width
+                        height: 100
+                        color: "transparent"
+                        
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 8
+                            
+                            Text {
+                                text: "󰂚"
+                                font.pixelSize: 32
+                                font.family: "Symbols Nerd Font"
+                                color: theme.muted
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            
+                            Text {
+                                text: "No notifications"
+                                color: theme.muted
+                                font.pixelSize: 14
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
                     }
 
-                    // FIX 5: ROBUST DELEGATE
                     delegate: Rectangle {
                         width: ListView.view.width
-                        height: 70
+                        height: theme.notificationHeight
                         color: theme.surface
-                        radius: 8
+                        radius: 12
                         
                         RowLayout {
                             anchors.fill: parent
-                            anchors.margins: 12
+                            anchors.margins: 16
                             spacing: 12
 
-                            // Icon Wrapper
+                            // Icon
                             Rectangle {
-                                Layout.preferredWidth: 40; Layout.preferredHeight: 40
-                                color: theme.bg; radius: 6
+                                Layout.preferredWidth: 40
+                                Layout.preferredHeight: 40
+                                color: theme.tile
+                                radius: 8
+                                
                                 Image {
-                                    anchors.centerIn: parent; width: 24; height: 24
+                                    anchors.centerIn: parent
+                                    width: 24
+                                    height: 24
                                     fillMode: Image.PreserveAspectFit
                                     source: {
                                         var src = image || appIcon || ""
@@ -253,31 +404,54 @@ PanelWindow {
                                 }
                             }
 
-                            // Text
+                            // Content
                             ColumnLayout {
-                                Layout.fillWidth: true; spacing: 2
-                                Text { text: summary; color: theme.text; font.bold: true; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true }
-                                Text { text: body; color: theme.secondary; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
+                                Layout.fillWidth: true
+                                spacing: 4
+                                
+                                Text {
+                                    text: summary
+                                    color: theme.text
+                                    font.pixelSize: 14
+                                    font.weight: Font.Medium
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
+                                }
+                                
+                                Text {
+                                    text: body
+                                    color: theme.secondary
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    Layout.fillWidth: true
+                                }
                             }
 
-                            // Close Button Wrapper
+                            // Close Button
                             Rectangle {
                                 Layout.preferredWidth: 24
                                 Layout.preferredHeight: 24
-                                color: closeArea.pressed ? "#414868" : "transparent"
+                                color: closeArea.containsMouse ? theme.tile : "transparent"
                                 radius: 12
                                 
-                                Text { 
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                                
+                                Text {
                                     anchors.centerIn: parent
-                                    text: "✕"
-                                    color: theme.secondary 
+                                    text: "󰅖"
+                                    font.pixelSize: 14
+                                    font.family: "Symbols Nerd Font"
+                                    color: theme.secondary
                                 }
                                 
                                 MouseArea {
                                     id: closeArea
                                     anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    
                                     onClicked: {
-                                        // Safer removal
                                         if (typeof notifManager.removeById === "function") {
                                             notifManager.removeById(model.id)
                                         } else {
@@ -295,41 +469,173 @@ PanelWindow {
 
     // --- REUSABLE COMPONENTS ---
 
-    component MatteButton: Rectangle {
-        property string icon: ""; property color accentColor: theme.text; signal clicked()
-        color: tapHandler.pressed ? theme.surface : "transparent"
-        radius: 8; border.width: 1; border.color: theme.surface
-        Text { anchors.centerIn: parent; text: icon; color: accentColor; font.pixelSize: 18 }
-        TapHandler { id: tapHandler; onTapped: clicked() }
-    }
-
-    component MatteToggle: Rectangle {
-        property string label: ""; property string icon: ""; property bool active: false
-        height: 60; radius: 12; color: active ? theme.accent : theme.surface
+    component ToggleButton: Rectangle {
+        property string label: ""
+        property string sublabel: ""
+        property string icon: ""
+        property bool active: false
+        property bool showChevron: false
+        
+        implicitHeight: theme.toggleHeight
+        radius: 16
+        color: active ? theme.tileActive : theme.tile
+        border.width: 1
+        border.color: active ? theme.tileActive : theme.border
+        
+        Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutQuad } }
+        Behavior on border.color { ColorAnimation { duration: 200 } }
+        
         RowLayout {
-            anchors.fill: parent; anchors.margins: 16; spacing: 12
-            Text { text: icon; font.pixelSize: 20; color: active ? theme.bg : theme.text }
-            Text { text: label; font.bold: true; font.pixelSize: 14; color: active ? theme.bg : theme.text; Layout.fillWidth: true }
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 14
+            
+            // Icon
+            Text {
+                text: icon
+                font.pixelSize: theme.toggleIconSize
+                font.family: "Symbols Nerd Font"
+                color: active ? theme.bg : theme.secondary
+                Behavior on color { ColorAnimation { duration: 200 } }
+            }
+            
+            // Labels
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                
+                Text {
+                    text: label
+                    font.pixelSize: 14
+                    font.weight: Font.Medium
+                    color: active ? theme.bg : theme.text
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                
+                Text {
+                    text: sublabel
+                    font.pixelSize: 12
+                    color: active ? Qt.rgba(theme.bg.r, theme.bg.g, theme.bg.b, 0.7) : theme.secondary
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                    visible: sublabel !== ""
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+            }
+            
+            // Chevron
+            Text {
+                text: "󰅂"
+                font.pixelSize: 16
+                font.family: "Symbols Nerd Font"
+                color: active ? theme.bg : theme.iconMuted
+                visible: showChevron
+                Behavior on color { ColorAnimation { duration: 200 } }
+            }
         }
-        TapHandler { onTapped: active = !active }
+        
+        TapHandler {
+            onTapped: active = !active
+        }
     }
 
-    component MatteSlider: Rectangle {
-        property string icon: ""; property real value: 0.5; property color accentColor: theme.accent
+    component SliderControl: Rectangle {
+        property string label: ""
+        property string icon: ""
+        property real value: 0.5
         
-        // FIX: Ensure it has width in Layouts
-        Layout.fillWidth: true 
+        Layout.fillWidth: true
+        implicitHeight: theme.sliderHeight
+        color: theme.tile
+        radius: 12
         
-        height: 48; color: theme.surface; radius: 12; clip: true
-        Rectangle { height: parent.height; width: parent.width * value; color: accentColor; radius: 12 }
-        Text {
-            anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter
-            text: icon; color: (value > 0.15) ? theme.bg : theme.text; font.pixelSize: 16
-        }
-        MouseArea {
+        ColumnLayout {
             anchors.fill: parent
-            onPositionChanged: (mouse) => { parent.value = Math.max(0, Math.min(1, mouse.x / width)) }
-            onPressed: (mouse) => { parent.value = Math.max(0, Math.min(1, mouse.x / width)) }
+            anchors.margins: 16
+            spacing: 10
+            
+            // Header
+            RowLayout {
+                Layout.fillWidth: true
+                
+                Text {
+                    text: icon
+                    font.pixelSize: theme.sliderIconSize
+                    font.family: "Symbols Nerd Font"
+                    color: theme.text
+                }
+                
+                Text {
+                    text: label
+                    font.pixelSize: 14
+                    font.weight: Font.Medium
+                    color: theme.text
+                    Layout.fillWidth: true
+                }
+                
+                Text {
+                    text: Math.round(value * 100) + "%"
+                    font.pixelSize: 14
+                    font.weight: Font.Medium
+                    color: theme.secondary
+                }
+            }
+            
+            // Slider Track
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 6
+                radius: 3
+                color: theme.sliderTrack
+                
+                Rectangle {
+                    height: parent.height
+                    width: parent.width * value
+                    radius: 3
+                    color: theme.sliderFill
+                    
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: 150
+                            easing.type: Easing.OutQuad
+                        }
+                    }
+                    
+                    // Thumb
+                    Rectangle {
+                        width: 20
+                        height: 20
+                        radius: 10
+                        color: theme.sliderThumb
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            transparentBorder: true
+                            horizontalOffset: 0
+                            verticalOffset: 2
+                            radius: 8
+                            samples: 17
+                            color: Qt.rgba(0, 0, 0, 0.2)
+                        }
+                    }
+                }
+                
+                MouseArea {
+                    anchors.fill: parent
+                    
+                    onPositionChanged: function(mouse) {
+                        value = Math.max(0, Math.min(1, mouse.x / width))
+                    }
+                    
+                    onPressed: function(mouse) {
+                        value = Math.max(0, Math.min(1, mouse.x / width))
+                    }
+                }
+            }
         }
     }
 }
