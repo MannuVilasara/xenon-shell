@@ -9,6 +9,7 @@ Item {
     property ListModel notifications: ListModel {}
     property var currentPopup: null
     property bool popupVisible: false
+    property int notificationCounter: 0
 
     // --- The Server ---
     NotificationServer {
@@ -24,8 +25,12 @@ Item {
             // 1. Keep it alive
             notification.tracked = true
 
-            // 2. Add to History
+            // 2. Generate unique ID
+            var uniqueId = root.notificationCounter++
+
+            // 3. Add to History
             root.notifications.insert(0, {
+                "id": uniqueId,
                 "ref": notification,
                 "appName": notification.appName,
                 "summary": notification.summary,
@@ -36,6 +41,8 @@ Item {
                 "time": Qt.formatTime(new Date(), "hh:mm")
             })
 
+            console.log("Notification added:", notification.summary, "ID:", uniqueId, "Total count:", root.notifications.count)
+
             // 3. Show Popup
             root.currentPopup = notification
             root.popupVisible = true
@@ -43,7 +50,7 @@ Item {
 
             // 4. Listen for External Close
             notification.closed.connect(() => {
-                root.removeByRef(notification)
+                root.removeById(notification)
                 if (root.currentPopup === notification) {
                     root.popupVisible = false
                 }
@@ -78,6 +85,21 @@ Item {
             item.ref.dismiss()
         }
         notifications.remove(index)
+    }
+
+    function removeById(notifId) {
+        console.log("Removing notification with ID:", notifId)
+        for (var i = 0; i < notifications.count; i++) {
+            var item = notifications.get(i)
+            console.log("  Checking index", i, "ID:", item.id)
+            if (item.id === notifId) {
+                console.log("  Found! Removing...")
+                if (item.ref) item.ref.dismiss()
+                notifications.remove(i)
+                return
+            }
+        }
+        console.log("  Not found!")
     }
 
     function removeByRef(notificationRef) {

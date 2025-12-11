@@ -343,6 +343,17 @@ PanelWindow {
                     clip: true
                     spacing: 12
                     model: notifManager.notifications
+                    
+                    Component.onCompleted: {
+                        console.log("ListView initialized. Model count:", model.count)
+                    }
+                    
+                    Connections {
+                        target: notifManager.notifications
+                        function onCountChanged() {
+                            console.log("Notifications count changed:", notifManager.notifications.count)
+                        }
+                    }
 
                     Rectangle {
                         visible: parent.count === 0
@@ -373,10 +384,19 @@ PanelWindow {
                     }
 
                     delegate: Rectangle {
+                        required property var model
+                        required property int index
+                        
+                        property int notifId: model.id
+                        
                         width: ListView.view.width
                         height: theme.notificationHeight
                         color: theme.surface
                         radius: 12
+                        
+                        Component.onCompleted: {
+                            console.log("Created delegate at index", index, "with ID:", notifId, "summary:", model.summary)
+                        }
                         
                         RowLayout {
                             anchors.fill: parent
@@ -391,16 +411,45 @@ PanelWindow {
                                 radius: 8
                                 
                                 Image {
+                                    id: notifIcon
                                     anchors.centerIn: parent
                                     width: 24
                                     height: 24
                                     fillMode: Image.PreserveAspectFit
+                                    smooth: true
                                     source: {
-                                        var src = image || appIcon || ""
-                                        if (src.indexOf("/") >= 0) return "file://" + src
-                                        if (src !== "") return "image://icon/" + src
+                                        var img = model.image || ""
+                                        var icon = model.appIcon || ""
+                                        
+                                        // Prioritize image over icon
+                                        if (img !== "") {
+                                            if (img.startsWith("/") || img.startsWith("file://")) {
+                                                return img.startsWith("file://") ? img : "file://" + img
+                                            }
+                                        }
+                                        
+                                        // Use appIcon if no image
+                                        if (icon !== "") {
+                                            if (icon.startsWith("/") || icon.startsWith("file://")) {
+                                                return icon.startsWith("file://") ? icon : "file://" + icon
+                                            }
+                                            // It's an icon name, use icon provider
+                                            return "image://icon/" + icon
+                                        }
+                                        
                                         return ""
                                     }
+                                    visible: status === Image.Ready
+                                    cache: false
+                                }
+                                
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰂚"
+                                    font.pixelSize: 24
+                                    font.family: "Symbols Nerd Font"
+                                    color: theme.iconMuted
+                                    visible: !notifIcon.visible
                                 }
                             }
 
@@ -410,7 +459,7 @@ PanelWindow {
                                 spacing: 4
                                 
                                 Text {
-                                    text: summary
+                                    text: model.summary || ""
                                     color: theme.text
                                     font.pixelSize: 14
                                     font.weight: Font.Medium
@@ -419,7 +468,7 @@ PanelWindow {
                                 }
                                 
                                 Text {
-                                    text: body
+                                    text: model.body || ""
                                     color: theme.secondary
                                     font.pixelSize: 13
                                     elide: Text.ElideRight
@@ -452,11 +501,8 @@ PanelWindow {
                                     cursorShape: Qt.PointingHandCursor
                                     
                                     onClicked: {
-                                        if (typeof notifManager.removeById === "function") {
-                                            notifManager.removeById(model.id)
-                                        } else {
-                                            notifManager.removeAtIndex(index)
-                                        }
+                                        console.log("Close clicked for ID:", notifId, "at index:", index)
+                                        notifManager.removeById(notifId)
                                     }
                                 }
                             }

@@ -88,17 +88,53 @@ PanelWindow {
                 color: theme.muted
                 
                 Image {
+                    id: iconImage
                     anchors.fill: parent
-                    anchors.margins: 8
+                    anchors.margins: 4
                     fillMode: Image.PreserveAspectFit
+                    smooth: true
                     source: {
                         if (!manager.currentPopup) return ""
-                        var src = manager.currentPopup.image || manager.currentPopup.appIcon || ""
-                        if (src.indexOf("/") >= 0) return "file://" + src
-                        if (src !== "") return "image://icon/" + src
-                        return "" 
+                        
+                        var img = manager.currentPopup.image || ""
+                        var icon = manager.currentPopup.appIcon || ""
+                        
+                        // Prioritize image over icon
+                        if (img !== "") {
+                            if (img.startsWith("/") || img.startsWith("file://")) {
+                                return img.startsWith("file://") ? img : "file://" + img
+                            }
+                        }
+                        
+                        // Use appIcon if no image
+                        if (icon !== "") {
+                            if (icon.startsWith("/") || icon.startsWith("file://")) {
+                                return icon.startsWith("file://") ? icon : "file://" + icon
+                            }
+                            // It's an icon name, use icon provider
+                            return "image://icon/" + icon
+                        }
+                        
+                        return ""
                     }
-                    onStatusChanged: if (status === Image.Error) source = "image://icon/dialog-information"
+                    visible: status === Image.Ready
+                    cache: false
+                    
+                    onStatusChanged: {
+                        if (status == Image.Error) {
+                            console.log("Toast icon failed to load:", source)
+                        }
+                    }
+                }
+                
+                // Fallback icon when no image available
+                Text {
+                    anchors.centerIn: parent
+                    text: "󰂚"
+                    font.pixelSize: 32
+                    font.family: "Symbols Nerd Font"
+                    color: theme.fg
+                    visible: !iconImage.visible
                 }
             }
 
