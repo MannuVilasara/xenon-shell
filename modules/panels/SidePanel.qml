@@ -284,14 +284,27 @@ PanelWindow {
                             }
                         }
 
-                        ToggleButton {
-                            label: "Bluetooth"
-                            sublabel: "Off"
-                            icon: "󰂯"
-                            active: false
-                            showChevron: true
-                            theme: theme
+                        Item {
                             Layout.fillWidth: true
+                            implicitHeight: theme.toggleHeight
+                            
+                            ToggleButton {
+                                anchors.fill: parent
+                                label: "Bluetooth"
+                                sublabel: "Off"
+                                icon: "󰂯"
+                                active: false
+                                showChevron: true
+                                theme: theme
+                            }
+                            
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    btModal.isOpen = !btModal.isOpen
+                                }
+                            }
                         }
 
                         ToggleButton {
@@ -548,5 +561,14 @@ PanelWindow {
         globalState: root.globalState
         z: 100
         onClose: wifiModal.isOpen = false
+    }
+
+    BtModal {
+        id: btModal
+        anchors.fill: content
+        theme: theme
+        globalState: root.globalState
+        z: 100
+        onClose: btModal.isOpen = false
     }
 }
