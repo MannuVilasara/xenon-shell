@@ -9,6 +9,7 @@ PanelWindow {
     id: root
 
     property bool isOpen: false
+    required property var globalState
 
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
@@ -19,7 +20,7 @@ PanelWindow {
     WlrLayershell.exclusiveZone: -1
     WlrLayershell.keyboardFocus: WlrLayershell.KeyboardFocus.OnDemand
 
-    Keys.onEscapePressed: isOpen = false
+    Keys.onEscapePressed: globalState.powerMenuOpen = false
 
     // Dimmer with blur
     Rectangle {
@@ -31,7 +32,7 @@ PanelWindow {
         
         MouseArea {
             anchors.fill: parent
-            onClicked: root.isOpen = false
+            onClicked: globalState.powerMenuOpen = false
         }
         
         layer.enabled: true
@@ -88,42 +89,42 @@ PanelWindow {
                 label: "Lock"
                 icon: "󰌾"
                 accentColor: "#60A5FA"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
             
             PowerButton {
                 label: "Reboot"
                 icon: "󰜉"
                 accentColor: "#F59E0B"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
             
             PowerButton {
                 label: "Shutdown"
                 icon: "󰐥"
                 accentColor: "#EF4444"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
             
             PowerButton {
                 label: "Logout"
                 icon: "󰍃"
                 accentColor: "#8B9DC3"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
             
             PowerButton {
                 label: "Suspend"
                 icon: "󰒲"
                 accentColor: "#A78BFA"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
             
             PowerButton {
                 label: "Hibernate"
                 icon: "󰋊"
                 accentColor: "#6366F1"
-                onClicked: root.isOpen = false
+                onClicked: globalState.powerMenuOpen = false
             }
         }
     }

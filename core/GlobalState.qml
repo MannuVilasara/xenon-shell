@@ -8,6 +8,8 @@ QtObject {
     property bool clipboardOpen: false
     property bool sidePanelOpen: false
     property bool wallpaperPanelOpen: false
+    property bool powerMenuOpen: false
+    
     // --- Actions ---
     function toggleLauncher() {
         if (launcherOpen) {
@@ -47,10 +49,20 @@ QtObject {
         }
     }
 
+    function togglePowerMenu() {
+        if (powerMenuOpen) {
+            powerMenuOpen = false;
+        } else {
+            closeAll();
+            powerMenuOpen = true;
+        }
+    }
+
     function closeAll() {
         launcherOpen = false;
         clipboardOpen = false;
         sidePanelOpen = false;
         wallpaperPanelOpen = false;
+        powerMenuOpen = false;
     }
 }

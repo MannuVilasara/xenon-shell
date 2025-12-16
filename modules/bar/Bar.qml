@@ -296,7 +296,7 @@ Rectangle {
             }
         }
 
-        // Clock
+         // Clock
         Rectangle {
             Layout.preferredHeight: 26
             Layout.preferredWidth: clockText.implicitWidth + 24
@@ -312,5 +312,44 @@ Rectangle {
                 font.bold: true
             }
         }
+
+        // Power Menu Button
+        Rectangle {
+            Layout.preferredHeight: 26
+            Layout.preferredWidth: 26
+            radius: height / 2
+            color: "transparent"
+            border.color: colors.muted
+            border.width: 1
+            
+            Text {
+                anchors.centerIn: parent
+                text: "⏻"
+                font.pixelSize: 16
+                font.family: "Symbols Nerd Font"
+                color: colors.red
+            }
+            
+            Process {
+                id: powerMenuIpcProcess
+                command: ["quickshell", "ipc", "-c", "mannu", "call", "powermenu", "toggle"]
+            }
+            
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                hoverEnabled: true
+                
+                onEntered: parent.color = Qt.rgba(colors.red.r, colors.red.g, colors.red.b, 0.2)
+                onExited: parent.color = "transparent"
+                
+                onClicked: {
+                    powerMenuIpcProcess.running = true
+                }
+            }
+        }
+        
+
+       
     }
 }

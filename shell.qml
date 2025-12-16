@@ -77,6 +77,11 @@ ShellRoot {
         globalState: appState
     }
 
+    PowerMenu {
+        isOpen: appState.powerMenuOpen
+        globalState: appState
+    }
+
     // --- Background (Wallpaper) ---
     Background {}
 
@@ -130,6 +135,14 @@ ShellRoot {
         target: "wallpaperpanel"
         function toggle() {
             appState.toggleWallpaperPanel();
+        }
+    }
+
+    // Power Menu Toggle
+    IpcHandler {
+        target: "powermenu"
+        function toggle() {
+            appState.togglePowerMenu();
         }
     }
 
