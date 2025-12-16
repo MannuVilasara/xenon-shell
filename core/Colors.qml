@@ -9,4 +9,5 @@ Item {
     readonly property color red: "#f7768e"
     readonly property color yellow: "#e0af68"
     readonly property color blue: "#7aa2f7"
+    readonly property color green: "#9ece6a"
 }
