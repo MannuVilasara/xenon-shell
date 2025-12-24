@@ -1,17 +1,14 @@
+import "." as Views
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
-import qs.Widgets
 import qs.Modules.Notifications
 import qs.Services
-import "." as Views
-
+import qs.Widgets
 
 ColumnLayout {
     id: root
-    width: 320 // Fixed width for the panel
-    spacing: 12
 
     required property var globalState
     required property var theme
@@ -21,21 +18,19 @@ ColumnLayout {
     signal requestBluetoothMenu()
     signal requestPowerMenu()
 
+    width: 320 // Fixed width for the panel
+    spacing: 12
 
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: 4
         spacing: 12
 
-
         Rectangle {
             Layout.preferredWidth: 42
             Layout.preferredHeight: 42
             radius: 14
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: theme.tileActive }
-                GradientStop { position: 1.0; color: theme.accentActive }
-            }
+
             Text {
                 anchors.centerIn: parent
                 text: "󰣇"
@@ -43,12 +38,26 @@ ColumnLayout {
                 font.family: "Symbols Nerd Font"
                 color: theme.bg
             }
-        }
 
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: theme.tileActive
+                }
+
+                GradientStop {
+                    position: 1
+                    color: theme.accentActive
+                }
+
+            }
+
+        }
 
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 0
+
             Text {
                 text: "Hey, " + Quickshell.env("USER")
                 color: theme.text
@@ -56,13 +65,14 @@ ColumnLayout {
                 font.pixelSize: 15
                 font.capitalization: Font.Capitalize
             }
+
             Text {
                 text: Qt.formatDate(new Date(), "ddd, MMM d")
                 color: theme.secondary
                 font.pixelSize: 12
             }
-        }
 
+        }
 
         Rectangle {
             Layout.preferredWidth: 36
@@ -79,20 +89,22 @@ ColumnLayout {
                 font.family: "Symbols Nerd Font"
                 color: theme.urgent
             }
+
             TapHandler {
                 id: powerBtn
+
                 onTapped: root.requestPowerMenu()
             }
-        }
-    }
 
+        }
+
+    }
 
     GridLayout {
         Layout.fillWidth: true
         columns: 2
         rowSpacing: 10
         columnSpacing: 10
-
 
         Views.ToggleButton {
             Layout.fillWidth: true
@@ -103,21 +115,20 @@ ColumnLayout {
             active: NetworkService.wifiEnabled
             showChevron: true
             theme: root.theme
-            
+
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
                 onClicked: (mouse) => {
-                    if (mouse.button === Qt.RightButton) {
-                        root.requestWifiMenu()
-                    } else {
-                        NetworkService.toggleWifi()
-                    }
+                    if (mouse.button === Qt.RightButton)
+                        root.requestWifiMenu();
+                    else
+                        NetworkService.toggleWifi();
                 }
             }
-        }
 
+        }
 
         Views.ToggleButton {
             Layout.fillWidth: true
@@ -128,21 +139,20 @@ ColumnLayout {
             active: BluetoothService.enabled
             showChevron: true
             theme: root.theme
-            
+
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
                 onClicked: (mouse) => {
-                    if (mouse.button === Qt.RightButton) {
-                        root.requestBluetoothMenu()
-                    } else {
-                        BluetoothService.toggleBluetooth()
-                    }
+                    if (mouse.button === Qt.RightButton)
+                        root.requestBluetoothMenu();
+                    else
+                        BluetoothService.toggleBluetooth();
                 }
             }
+
         }
-        
 
         Views.ToggleButton {
             Layout.fillWidth: true
@@ -155,7 +165,6 @@ ColumnLayout {
             theme: root.theme
         }
 
-
         Views.ToggleButton {
             Layout.fillWidth: true
             implicitHeight: 56
@@ -166,20 +175,22 @@ ColumnLayout {
             showChevron: false
             theme: root.theme
         }
-    }
 
+    }
 
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 12
         Layout.topMargin: 4
-        
+
         Views.SliderControl {
             label: "Volume"
             icon: "󰕾"
             value: VolumeService.volume
             theme: root.theme
-            onChangeRequested: (v) => VolumeService.setVolume(v)
+            onChangeRequested: (v) => {
+                return VolumeService.setVolume(v);
+            }
         }
 
         Views.SliderControl {
@@ -187,7 +198,11 @@ ColumnLayout {
             icon: "󰃠"
             value: BrightnessService.brightness
             theme: root.theme
-            onChangeRequested: (v) => BrightnessService.setBrightness(v)
+            onChangeRequested: (v) => {
+                return BrightnessService.setBrightness(v);
+            }
         }
+
     }
+
 }

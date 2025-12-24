@@ -3,20 +3,17 @@ import QtQuick
 QtObject {
     id: root
 
-    // --- State Properties ---
     property bool launcherOpen: false
     property bool clipboardOpen: false
     property bool sidePanelOpen: false
     property bool wallpaperPanelOpen: false
     property bool powerMenuOpen: false
     property bool infoPanelOpen: false
-    
-    // --- Actions ---
+
     function toggleLauncher() {
         if (launcherOpen) {
             launcherOpen = false;
         } else {
-            // Close others when opening launcher (Exclusive mode)
             closeAll();
             launcherOpen = true;
         }
@@ -37,7 +34,6 @@ QtObject {
         } else {
             closeAll();
             sidePanelOpen = true;
-            
         }
     }
 
@@ -76,4 +72,5 @@ QtObject {
         powerMenuOpen = false;
         infoPanelOpen = false;
     }
+
 }

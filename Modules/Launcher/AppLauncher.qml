@@ -1,6 +1,6 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import qs.Core
@@ -8,15 +8,55 @@ import qs.Core
 PanelWindow {
     id: root
 
-    // 1. Receive State & Colors
     required property Colors colors
     required property GlobalState globalState
+    property string query: ""
+    property var filteredApps: {
+        var apps = DesktopEntries.applications.values;
+        var q = query.toLowerCase().trim();
+        if (q === "")
+            return [];
 
-    // 2. Bind Visibility to Global State
+        var matches = apps.filter((app) => {
+            if (app.noDisplay)
+                return false;
+
+            return app.name.toLowerCase().includes(q);
+        });
+        matches.sort((a, b) => {
+            var nameA = a.name.toLowerCase();
+            var nameB = b.name.toLowerCase();
+            if (nameA === q && nameB !== q)
+                return -1;
+
+            if (nameB === q && nameA !== q)
+                return 1;
+
+            var startA = nameA.startsWith(q);
+            var startB = nameB.startsWith(q);
+            if (startA && !startB)
+                return -1;
+ // A wins
+            if (!startA && startB)
+                return 1;
+ // B wins
+            return nameA.localeCompare(nameB);
+        });
+        return matches;
+    }
+
     visible: globalState.launcherOpen
-
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    color: "transparent"
+    onVisibleChanged: {
+        if (visible) {
+            query = "";
+            input.text = "";
+            input.forceActiveFocus();
+            appList.currentIndex = 0;
+        }
+    }
 
     anchors {
         top: true
@@ -24,10 +64,7 @@ PanelWindow {
         left: true
         right: true
     }
-    color: "transparent"
 
-    // 3. Update Closing Logic
-    // Instead of 'root.visible = false', we update the state
     Shortcut {
         sequence: "Escape"
         onActivated: globalState.closeAll()
@@ -39,86 +76,22 @@ PanelWindow {
         onClicked: globalState.closeAll()
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            query = "";
-            input.text = "";
-            input.forceActiveFocus();
-            appList.currentIndex = 0;
-        }
-    }
-
-    property string query: ""
-
-    // --- 2. IMPROVED SEARCH LOGIC ---
-    property var filteredApps: {
-        var apps = DesktopEntries.applications.values;
-        var q = query.toLowerCase().trim();
-
-        if (q === "")
-            return [];
-
-        // Step 1: Filter (Keep valid results)
-        var matches = apps.filter(app => {
-            if (app.noDisplay)
-                return false;
-            return app.name.toLowerCase().includes(q);
-        });
-
-        // Step 2: Smart Sort (Rank by Relevance)
-        matches.sort((a, b) => {
-            var nameA = a.name.toLowerCase();
-            var nameB = b.name.toLowerCase();
-
-            // A. Exact Match gets top priority
-            if (nameA === q && nameB !== q)
-                return -1;
-            if (nameB === q && nameA !== q)
-                return 1;
-
-            // B. "Starts With" gets second priority
-            // e.g. "Ves" -> "Vesktop" (Starts) vs "Drives" (Contains)
-            var startA = nameA.startsWith(q);
-            var startB = nameB.startsWith(q);
-
-            if (startA && !startB)
-                return -1; // A wins
-            if (!startA && startB)
-                return 1;  // B wins
-
-            // C. Tie-breaker: Alphabetical
-            return nameA.localeCompare(nameB);
-        });
-
-        return matches;
-    }
-
-    // --- MAIN CONTAINER ---
     Rectangle {
         id: mainContainer
+
         width: 480
         anchors.centerIn: parent
-
         height: 60 + (appList.count > 0 ? Math.min(appList.count * 44, 350) : 0)
-
         color: colors.bg
         border.color: colors.muted
         border.width: 1
         radius: 12
         clip: true
 
-        Behavior on height {
-            NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutQuart
-            }
-        }
-
         ColumnLayout {
             anchors.fill: parent
             spacing: 0
 
-            // --- SEARCH HEADER ---
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 60
@@ -137,6 +110,7 @@ PanelWindow {
 
                     TextField {
                         id: input
+
                         Layout.fillWidth: true
                         background: null
                         color: colors.fg
@@ -145,18 +119,20 @@ PanelWindow {
                         placeholderText: "Search..."
                         placeholderTextColor: colors.muted
                         verticalAlignment: TextInput.AlignVCenter
-
                         onTextChanged: {
                             root.query = text;
                             appList.currentIndex = 0;
                         }
                         Keys.onDownPressed: appList.incrementCurrentIndex()
                         Keys.onUpPressed: appList.decrementCurrentIndex()
-                        Keys.onReturnPressed: if (appList.count > 0) {
-                            appList.model[appList.currentIndex].execute();
-                            globalState.launcherOpen = false;
+                        Keys.onReturnPressed: {
+                            if (appList.count > 0) {
+                                appList.model[appList.currentIndex].execute();
+                                globalState.launcherOpen = false;
+                            }
                         }
                     }
+
                 }
 
                 Rectangle {
@@ -167,14 +143,14 @@ PanelWindow {
                     visible: appList.count > 0
                     opacity: 0.5
                 }
+
             }
 
-            // --- RESULTS LIST ---
             ListView {
                 id: appList
+
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-
                 visible: count > 0
                 model: root.filteredApps
                 clip: true
@@ -211,6 +187,7 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: parent.parent.ListView.isCurrentItem
                         }
+
                     }
 
                     RowLayout {
@@ -226,6 +203,7 @@ PanelWindow {
                             source: {
                                 if (modelData.icon.indexOf("/") !== -1)
                                     return "file://" + modelData.icon;
+
                                 return "image://icon/" + modelData.icon;
                             }
                         }
@@ -245,9 +223,23 @@ PanelWindow {
                             font.pixelSize: 14
                             visible: ListView.isCurrentItem
                         }
+
                     }
+
                 }
+
             }
+
         }
+
+        Behavior on height {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutQuart
+            }
+
+        }
+
     }
+
 }

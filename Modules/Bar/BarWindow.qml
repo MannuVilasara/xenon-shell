@@ -5,14 +5,17 @@ import qs.Services
 
 Variants {
     id: root
-    
+
     required property Context context
-    
+
     model: Quickshell.screens
 
     PanelWindow {
         property var modelData
+
         screen: modelData
+        implicitHeight: 34
+        color: "transparent"
 
         anchors {
             top: true
@@ -20,16 +23,12 @@ Variants {
             right: true
         }
 
-        implicitHeight: 34
-
         margins {
             top: 5
             bottom: 0
             left: 8
             right: 8
         }
-
-        color: "transparent"
 
         Bar {
             colors: root.context.colors
@@ -44,5 +43,7 @@ Variants {
             currentLayout: root.context.layout.layout
             time: root.context.time.currentTime
         }
+
     }
+
 }

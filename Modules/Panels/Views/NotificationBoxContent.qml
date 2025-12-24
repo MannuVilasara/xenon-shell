@@ -1,39 +1,39 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import qs.Modules.Notifications
 import qs.Widgets
 
 ColumnLayout {
     id: root
+
+    required property var notifManager
+    required property var theme
+
     width: 320
     spacing: 0
-    // Enforce fixed maximum panel height and prefer 280px
     Layout.preferredHeight: 280
     Layout.minimumHeight: 100
     Layout.maximumHeight: 280
     clip: true
-    
-    required property var notifManager
-    required property var theme
-
 
     Rectangle {
         Layout.fillWidth: true
         implicitHeight: 44
         color: "transparent"
-        
+
         RowLayout {
             anchors.fill: parent
             anchors.margins: 4
             spacing: 8
-            
+
             Rectangle {
                 width: 24
                 height: 24
                 radius: 8
                 color: theme.accentActive
+
                 Text {
                     anchors.centerIn: parent
                     text: "󰂚"
@@ -41,6 +41,7 @@ ColumnLayout {
                     color: theme.bg
                     font.pixelSize: 14
                 }
+
             }
 
             Text {
@@ -50,7 +51,9 @@ ColumnLayout {
                 font.bold: true
             }
 
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
 
             Text {
                 text: "Clear All"
@@ -58,16 +61,18 @@ ColumnLayout {
                 font.pixelSize: 11
                 font.bold: true
                 visible: root.notifManager.notifications.count > 0
-                
+
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.notifManager.clearHistory()
                 }
+
             }
+
         }
+
     }
-    
 
     Rectangle {
         Layout.fillWidth: true
@@ -77,19 +82,25 @@ ColumnLayout {
         Layout.bottomMargin: 8
     }
 
-
     ListView {
         id: notifList
+
         Layout.fillWidth: true
-        // Let the parent ColumnLayout constrain height (max 280px).
-        // Do NOT set implicitHeight from content so the parent won't expand.
         Layout.fillHeight: true
         Layout.minimumHeight: 280
-        
         clip: true
         spacing: 10
         model: root.notifManager.notifications
-        
+
+        Text {
+            anchors.centerIn: parent
+            visible: parent.count === 0
+            text: "No new notifications"
+            color: theme.muted
+            font.pixelSize: 12
+            font.italic: true
+        }
+
         delegate: NotificationItem {
             width: ListView.view.width - 4
             notifId: model.id
@@ -101,14 +112,6 @@ ColumnLayout {
             onRemoveRequested: root.notifManager.removeById(notifId)
         }
 
-
-        Text {
-            anchors.centerIn: parent
-            visible: parent.count === 0
-            text: "No new notifications"
-            color: theme.muted
-            font.pixelSize: 12
-            font.italic: true
-        }
     }
+
 }

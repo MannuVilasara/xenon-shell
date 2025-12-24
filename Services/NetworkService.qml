@@ -47,9 +47,7 @@ Singleton {
         }
     }
 
-    // --- Processes ---
 
-    // 1. Initial Status Check
     Process {
         id: statusProc
         running: true
@@ -61,7 +59,6 @@ Singleton {
         }
     }
 
-    // 2. Enable/Disable Action
     Process {
         id: enableWifiProc
         onExited: {
@@ -70,7 +67,6 @@ Singleton {
         }
     }
 
-    // 3. Rescan Action
     Process {
         id: rescanProc
         command: ["nmcli", "dev", "wifi", "list", "--rescan", "yes"]
@@ -79,11 +75,9 @@ Singleton {
         }
     }
 
-    // 4. Connect/Disconnect Actions
     Process {
         id: connectProc
         onExited: {
-            // Check status if failed or success?
             rescanProc.running = true 
         }
     }
@@ -92,7 +86,6 @@ Singleton {
         onExited: rescanProc.running = true
     }
 
-    // 5. Poll Timer for Status & Scan
     Timer {
         interval: 5000
         running: true
@@ -104,7 +97,6 @@ Singleton {
         }
     }
 
-    // 6. Get Networks (Parsing)
     Process {
         id: getNetworks
         command: ["nmcli", "-g", "ACTIVE,SIGNAL,FREQ,SSID,BSSID,SECURITY", "d", "w"]
@@ -112,16 +104,11 @@ Singleton {
             onStreamFinished: {
                 if (!text) return
                 
-                // Parse lines
-                // Format: yes:100:2412:MySSID:xx\:xx\:xx\:xx\:xx\:xx:WPA2
-                // We need to handle escaped colons in BSSID/SSID if any (nmcli -g escapes them)
                 
-                // Simplified parsing logic
                 var lines = text.trim().split("\n")
                 var parsedList = []
                 
                 lines.forEach(line => {
-                    // Quick hack for unescaping: replace "\:" with a placeholder
                     var safeLine = line.replace(/\\:/g, "__COLON__")
                     var parts = safeLine.split(":")
                     if (parts.length >= 4 && parts[3].length > 0) {
@@ -139,7 +126,6 @@ Singleton {
                     }
                 })
 
-                // Deduplicate: Keep active, or strongest signal
                 var uniqueMap = {}
                 parsedList.forEach(net => {
                     var existing = uniqueMap[net.ssid]
@@ -151,10 +137,6 @@ Singleton {
                     }
                 })
 
-                // Sync with existing `networks` list to avoid full rebuilds (flickering)
-                // For simplicity in this v1, we clear and rebuild active objects, 
-                // but ideally we should update properties of existing objects.
-                // We'll regenerate the list for now to ensure correctness.
                 
                 var newObjects = []
                 for (var ssid in uniqueMap) {
@@ -169,19 +151,16 @@ Singleton {
                     }))
                 }
                 
-                // Sort: Active first, then Signal Strength desc
                 newObjects.sort((a, b) => {
                     if (a.active) return -1
                     if (b.active) return 1
                     return b.strength - a.strength
                 })
 
-                // Clear old
                 while(root.networks.length > 0) {
                     root.networks.shift().destroy() // Clean up QObjects
                 }
                 
-                // Add new
                 for (var j=0; j<newObjects.length; j++) {
                     root.networks.push(newObjects[j])
                 }

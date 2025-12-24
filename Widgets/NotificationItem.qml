@@ -1,7 +1,7 @@
-import QtQuick
-import QtQuick.Layouts
-import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Rectangle {
     property int notifId: 0
@@ -9,28 +9,25 @@ Rectangle {
     property string body: ""
     property string image: ""
     property string appIcon: ""
-    signal removeRequested()
-
-    // Theme properties that need to be passed from parent
     property var theme
 
+    signal removeRequested()
+
     width: ListView.view ? ListView.view.width : 400
-    // Use dynamic height based on content, with fallback minimum
     implicitHeight: Math.max(80, mainLayout.implicitHeight + 32)
     height: implicitHeight
-    
     color: theme ? theme.surface : "#252932"
     radius: 12
 
     RowLayout {
         id: mainLayout
+
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 16
         spacing: 12
 
-        // Icon
         Rectangle {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
@@ -40,32 +37,27 @@ Rectangle {
 
             Image {
                 id: notifIcon
+
                 anchors.centerIn: parent
                 width: 24
                 height: 24
                 fillMode: Image.PreserveAspectFit
                 smooth: true
                 source: {
-                    var img = image || ""
-                    var icon = appIcon || ""
-
-                    // Prioritize image over icon
+                    var img = image || "";
+                    var icon = appIcon || "";
                     if (img !== "") {
-                        if (img.startsWith("/") || img.startsWith("file://")) {
-                            return img.startsWith("file://") ? img : "file://" + img
-                        }
-                    }
+                        if (img.startsWith("/") || img.startsWith("file://"))
+                            return img.startsWith("file://") ? img : "file://" + img;
 
-                    // Use appIcon if no image
+                    }
                     if (icon !== "") {
-                        if (icon.startsWith("/") || icon.startsWith("file://")) {
-                            return icon.startsWith("file://") ? icon : "file://" + icon
-                        }
-                        // It's an icon name, use icon provider
-                        return "image://icon/" + icon
-                    }
+                        if (icon.startsWith("/") || icon.startsWith("file://"))
+                            return icon.startsWith("file://") ? icon : "file://" + icon;
 
-                    return ""
+                        return "image://icon/" + icon;
+                    }
+                    return "";
                 }
                 visible: status === Image.Ready
                 cache: false
@@ -79,9 +71,9 @@ Rectangle {
                 color: theme ? theme.iconMuted : "#70727C"
                 visible: !notifIcon.visible
             }
+
         }
 
-        // Content
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 4
@@ -108,17 +100,15 @@ Rectangle {
                 Layout.fillWidth: true
                 visible: text !== ""
             }
+
         }
 
-        // Close Button
         Rectangle {
             Layout.preferredWidth: 24
             Layout.preferredHeight: 24
             Layout.alignment: Qt.AlignTop
             color: closeArea.containsMouse ? (theme ? theme.tile : "#2F333D") : "transparent"
             radius: 12
-
-            Behavior on color { ColorAnimation { duration: 150 } }
 
             Text {
                 anchors.centerIn: parent
@@ -130,15 +120,25 @@ Rectangle {
 
             MouseArea {
                 id: closeArea
+
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-
                 onClicked: {
-                    console.log("NotificationItem close clicked for ID:", notifId)
-                    removeRequested()
+                    console.log("NotificationItem close clicked for ID:", notifId);
+                    removeRequested();
                 }
             }
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                }
+
+            }
+
         }
+
     }
+
 }

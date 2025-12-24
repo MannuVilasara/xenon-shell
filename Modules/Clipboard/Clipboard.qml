@@ -1,9 +1,9 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
-import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell.Wayland
 import qs.Core
 
 PanelWindow {
@@ -12,35 +12,23 @@ PanelWindow {
     required property Colors colors
     required property GlobalState globalState
 
-    // --- Configuration ---
-    visible: globalState.clipboardOpen
-
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-
-    anchors {
-        top: true
-        bottom: true
-        left: true
-        right: true
-    }
-    color: "transparent"
-
-    // 3. Update Closing Logic
-    Shortcut {
-        sequence: "Escape"
-        onActivated: globalState.closeAll()
-    }
-    MouseArea {
-        anchors.fill: parent
-        z: -1
-        onClicked: globalState.closeAll()
-    }
-
     function refresh() {
         loader.running = true;
     }
 
+    function selectItem(index) {
+        if (index >= 0 && index < listView.model.length) {
+            var item = listView.model[index];
+            copier.targetId = item.id;
+            copier.running = true;
+            root.visible = false;
+        }
+    }
+
+    visible: globalState.clipboardOpen
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    color: "transparent"
     onVisibleChanged: {
         if (visible) {
             refresh();
@@ -50,17 +38,37 @@ PanelWindow {
         }
     }
 
-    // --- DATA PROCESS ---
+    anchors {
+        top: true
+        bottom: true
+        left: true
+        right: true
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: globalState.closeAll()
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+        onClicked: globalState.closeAll()
+    }
+
     Process {
         id: loader
+
         command: ["cliphist", "list"]
+
         stdout: StdioCollector {
             onStreamFinished: {
                 var lines = text.split("\n");
                 var data = [];
-                lines.forEach(line => {
+                lines.forEach((line) => {
                     if (line.trim() === "")
-                        return;
+                        return ;
+
                     var parts = line.split("\t");
                     var id = parts[0];
                     var content = parts.slice(1).join("\t");
@@ -71,50 +79,43 @@ PanelWindow {
                         "display": display
                     });
                 });
-                // FIX: Updated reference to 'listView'
                 listView.model = data;
             }
         }
+
     }
 
     Process {
         id: copier
+
         property string targetId: ""
+
         command: ["sh", "-c", `cliphist decode ${targetId} | wl-copy`]
     }
 
     Process {
         id: wiper
+
         command: ["cliphist", "wipe"]
-        // FIX: Updated reference to 'listView'
         onExited: listView.model = []
     }
 
-    // --- UI ---
     Rectangle {
         id: mainContainer
+
         width: 480
         anchors.centerIn: parent
         height: 60 + (listView.count > 0 ? Math.min(listView.count * 44, 400) : 100)
-
         color: colors.bg
         border.color: colors.muted
         border.width: 1
         radius: 12
         clip: true
 
-        Behavior on height {
-            NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutQuart
-            }
-        }
-
         ColumnLayout {
             anchors.fill: parent
             spacing: 0
 
-            // Header
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 60
@@ -131,6 +132,7 @@ PanelWindow {
 
                     TextField {
                         id: searchBar
+
                         Layout.fillWidth: true
                         background: null
                         color: colors.fg
@@ -139,7 +141,6 @@ PanelWindow {
                         placeholderText: "Search Clipboard..."
                         placeholderTextColor: colors.muted
                         verticalAlignment: TextInput.AlignVCenter
-
                         Keys.onDownPressed: listView.incrementCurrentIndex()
                         Keys.onUpPressed: listView.decrementCurrentIndex()
                         Keys.onReturnPressed: root.selectItem(listView.currentIndex)
@@ -149,12 +150,15 @@ PanelWindow {
                         text: "🗑️"
                         font.pixelSize: 16
                         opacity: 0.7
+
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: wiper.running = true
                         }
+
                     }
+
                 }
 
                 Rectangle {
@@ -164,12 +168,11 @@ PanelWindow {
                     color: colors.muted
                     opacity: 0.5
                 }
+
             }
 
-            // List
             ListView {
                 id: listView
-                // Removed duplicate 'id: historyList' line here
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -206,6 +209,7 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: parent.parent.ListView.isCurrentItem
                         }
+
                     }
 
                     Text {
@@ -217,18 +221,21 @@ PanelWindow {
                         font.pixelSize: 14
                         elide: Text.ElideRight
                     }
+
                 }
+
             }
+
         }
+
+        Behavior on height {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutQuart
+            }
+
+        }
+
     }
 
-    function selectItem(index) {
-        // FIX: Updated reference to 'listView'
-        if (index >= 0 && index < listView.model.length) {
-            var item = listView.model[index];
-            copier.targetId = item.id;
-            copier.running = true;
-            root.visible = false;
-        }
-    }
 }

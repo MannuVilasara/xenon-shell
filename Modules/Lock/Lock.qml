@@ -11,25 +11,27 @@ Item {
 
     PamAuth {
         id: auth
+
         onSuccess: lock.locked = false
     }
 
     WlSessionLock {
         id: lock
-        
-        // When locked, create a surface for each screen
+
         LockScreen {
             lock: lock
             pam: auth
             colors: root.context.colors
         }
+
     }
-    
-    // IPC Handler to trigger lock
+
     IpcHandler {
-        target: "lock"
         function lock() {
-            lock.locked = true
+            lock.locked = true;
         }
+
+        target: "lock"
     }
+
 }

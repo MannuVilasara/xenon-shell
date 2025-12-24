@@ -6,12 +6,18 @@ Item {
 
     Process {
         id: kernelProc
+
         command: ["uname", "-r"]
+        Component.onCompleted: running = true
+
         stdout: SplitParser {
-            onRead: data => {
-                if (data) version = data.trim()
+            onRead: (data) => {
+                if (data)
+                    version = data.trim();
+
             }
         }
-        Component.onCompleted: running = true
+
     }
+
 }

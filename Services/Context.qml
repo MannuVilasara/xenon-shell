@@ -4,7 +4,6 @@ import qs.Core
 Item {
     id: root
 
-    // Services
     property var config: Config
     property alias colors: colorsService
     property alias cpu: cpuService
@@ -16,13 +15,40 @@ Item {
     property alias layout: layoutService
     property alias appState: appStateService
 
-    Colors { id: colorsService }
-    CpuService { id: cpuService }
-    OsService { id: osService }
-    MemService { id: memService }
-    DiskService { id: diskService }
-    TimeService { id: timeService }
-    ActiveWindowService { id: activeWindowService }
-    LayoutService { id: layoutService }
-    GlobalState { id: appStateService }
+    Colors {
+        id: colorsService
+    }
+
+    CpuService {
+        id: cpuService
+    }
+
+    OsService {
+        id: osService
+    }
+
+    MemService {
+        id: memService
+    }
+
+    DiskService {
+        id: diskService
+    }
+
+    TimeService {
+        id: timeService
+    }
+
+    ActiveWindowService {
+        id: activeWindowService
+    }
+
+    LayoutService {
+        id: layoutService
+    }
+
+    GlobalState {
+        id: appStateService
+    }
+
 }

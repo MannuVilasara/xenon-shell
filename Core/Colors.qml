@@ -12,16 +12,12 @@ Item {
     readonly property color yellow: "#e0af68"
     readonly property color blue: loadedColors ? (loadedColors.primary.dark || "#7aa2f7") : "#7aa2f7"
     readonly property color green: "#9ece6a"
-    
-    // Additional Semantic Colors
     readonly property color surface: loadedColors ? (loadedColors.surface_container.dark || "#24283b") : "#24283b"
     readonly property color border: loadedColors ? (loadedColors.outline.dark || "#414868") : "#414868"
     readonly property color subtext: loadedColors ? (loadedColors.on_surface_variant.dark || "#565f89") : "#565f89"
     readonly property color orange: "#ff9e64"
     readonly property color teal: loadedColors ? (loadedColors.secondary.dark || "#73daca") : "#73daca"
     readonly property color accent: loadedColors ? (loadedColors.primary.dark || "#7aa2f7") : "#7aa2f7"
-
-    // UI Component Aliases (for compatibility with Views)
     readonly property color text: fg
     readonly property color tile: loadedColors ? (loadedColors.surface_variant.dark || "#444b6a") : "#444b6a"
     readonly property color tileActive: loadedColors ? (loadedColors.secondary_container.dark || "#3b4261") : "#3b4261"
@@ -29,14 +25,37 @@ Item {
     readonly property color urgent: red
     readonly property color secondary: subtext // Overriding the 'secondary' map if needed, or just alias to what Views expect
     readonly property color iconMuted: subtext
-
-    // Derived properties for views
     readonly property color red_dim: Qt.rgba(red.r, red.g, red.b, 0.1)
+    property var loadedColors: null
 
-    // Dynamic Colors Loader
-    // Dynamic Colors Loader
+    function refreshColors() {
+        try {
+            var content = (typeof colorsFile.text === 'function') ? colorsFile.text() : colorsFile.text;
+            if (!content || content.length === 0) {
+                console.log("[Colors] Content is empty or null");
+                return ;
+            }
+            var json = JSON.parse(content);
+            console.log("[Colors] Successfully parsed. Keys:", Object.keys(json));
+            if (json.colors) {
+                loadedColors = json.colors;
+            } else {
+                console.log("[Colors] 'colors' key missing, using root json object");
+                loadedColors = json;
+            }
+        } catch (e) {
+            console.warn("[Colors] Failed to parse colors.json:", e);
+        }
+    }
+
+    Component.onCompleted: {
+        console.log("[Colors] Initialized. Path:", colorsFile.path);
+        refreshColors();
+    }
+
     FileView {
         id: colorsFile
+
         path: Quickshell.env("HOME") + "/.cache/mannu/colors.json"
         watchChanges: true
         onFileChanged: {
@@ -52,33 +71,6 @@ Item {
         }
     }
 
-    property var loadedColors: null
-
-    function refreshColors() {
-        try {
-            // text appears to be a function in this version of Quickshell
-            var content = (typeof colorsFile.text === 'function') ? colorsFile.text() : colorsFile.text;
-            
-            if (!content || content.length === 0) {
-                console.log("[Colors] Content is empty or null");
-                return;
-            }
-            
-            var json = JSON.parse(content);
-            console.log("[Colors] Successfully parsed. Keys:", Object.keys(json));
-            
-            if (json.colors) {
-                loadedColors = json.colors;
-            } else {
-                console.log("[Colors] 'colors' key missing, using root json object");
-                loadedColors = json;
-            }
-        } catch (e) {
-            console.warn("[Colors] Failed to parse colors.json:", e);
-        }
-    }
-
-    // Timer to retry loading if file failed initially
     Timer {
         interval: 1000
         running: loadedColors === null
@@ -90,8 +82,4 @@ Item {
         }
     }
 
-    Component.onCompleted: {
-        console.log("[Colors] Initialized. Path:", colorsFile.path);
-        refreshColors();
-    }
 }

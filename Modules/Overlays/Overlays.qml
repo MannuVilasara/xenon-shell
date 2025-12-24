@@ -2,17 +2,16 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Core
-import qs.Services
-import qs.Modules.Launcher
 import qs.Modules.Clipboard
+import qs.Modules.Launcher
 import qs.Modules.Notifications
 import qs.Modules.Panels
+import qs.Services
 
 Item {
     id: root
 
     required property Context context
-    
 
     NotificationManager {
         id: notifManager
@@ -20,13 +19,14 @@ Item {
 
     NotificationToast {
         id: toast
+
         manager: notifManager
         colors: root.context.colors
     }
 
-
     SidePanel {
         id: sidePanel
+
         globalState: root.context.appState
         notifManager: notifManager
         colors: root.context.colors
@@ -35,11 +35,13 @@ Item {
 
     WallpaperPanel {
         id: wallpaperPanel
+
         globalState: root.context.appState
     }
 
     PowerMenu {
         id: powerMenu
+
         isOpen: root.context.appState.powerMenuOpen
         globalState: root.context.appState
         colors: root.context.colors
@@ -47,61 +49,109 @@ Item {
 
     InfoPanel {
         id: infoPanel
+
         globalState: root.context.appState
     }
 
-
     AppLauncher {
         id: launcher
+
         colors: root.context.colors
         globalState: root.context.appState
     }
 
     Clipboard {
         id: clipboard
+
         globalState: root.context.appState
         colors: root.context.colors
     }
-    
 
     IpcHandler {
-        target: "launcher"
-        function toggle() { root.context.appState.toggleLauncher(); }
-    }
-    IpcHandler {
-        target: "clipboard"
-        function toggle() { root.context.appState.toggleClipboard(); }
-    }
-    IpcHandler {
-        target: "sidePanel"
-        function open() { sidePanel.show(); }
-        function close() { sidePanel.hide(); }
-        function toggle() { 
-            if (sidePanel.forcedOpen) sidePanel.hide();
-            else sidePanel.show();
+        function toggle() {
+            root.context.appState.toggleLauncher();
         }
-        function lock() { sidePanel.hoverLocked = true; }
-        function unlock() { sidePanel.hoverLocked = false; }
-        function toggleLock() { sidePanel.hoverLocked = !sidePanel.hoverLocked; }
+
+        target: "launcher"
     }
+
     IpcHandler {
+        function toggle() {
+            root.context.appState.toggleClipboard();
+        }
+
+        target: "clipboard"
+    }
+
+    IpcHandler {
+        function open() {
+            sidePanel.show();
+        }
+
+        function close() {
+            sidePanel.hide();
+        }
+
+        function toggle() {
+            if (sidePanel.forcedOpen)
+                sidePanel.hide();
+            else
+                sidePanel.show();
+        }
+
+        function lock() {
+            sidePanel.hoverLocked = true;
+        }
+
+        function unlock() {
+            sidePanel.hoverLocked = false;
+        }
+
+        function toggleLock() {
+            sidePanel.hoverLocked = !sidePanel.hoverLocked;
+        }
+
+        target: "sidePanel"
+    }
+
+    IpcHandler {
+        function toggle() {
+            root.context.appState.toggleWallpaperPanel();
+        }
+
         target: "wallpaperpanel"
-        function toggle() { root.context.appState.toggleWallpaperPanel(); }
     }
+
     IpcHandler {
+        function toggle() {
+            root.context.appState.togglePowerMenu();
+        }
+
         target: "powermenu"
-        function toggle() { root.context.appState.togglePowerMenu(); }
     }
+
     IpcHandler {
+        function toggle() {
+            root.context.appState.toggleInfoPanel();
+        }
+
         target: "infopanel"
-        function toggle() { root.context.appState.toggleInfoPanel(); }
     }
+
     IpcHandler {
+        function update() {
+            clipboard.refresh();
+        }
+
         target: "cliphistService"
-        function update() { clipboard.refresh(); }
     }
+
     IpcHandler {
+        function set(path) {
+            WallpaperService.changeWallpaper(path, undefined);
+        }
+
         target: "wallpaper"
-        function set(path) { WallpaperService.changeWallpaper(path, undefined); }
     }
+
 }

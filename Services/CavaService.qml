@@ -1,8 +1,7 @@
-pragma Singleton
-
 import QtQuick
 import Quickshell
 import Quickshell.Io
+pragma Singleton
 
 Singleton {
     id: root
@@ -10,11 +9,7 @@ Singleton {
     property bool running: false
     property var values: []
     property int barsCount: 32
-
-    // Pre-allocated array
     property var _parseBuffer: new Array(barsCount)
-
-    // Config for Cava
     property var config: ({
         "general": {
             "bars": barsCount,
@@ -33,20 +28,19 @@ Singleton {
             "mono_option": "average"
         },
         "smoothing": {
-             "monstercat": 1,
-             "noise_reduction": 77
+            "monstercat": 1,
+            "noise_reduction": 77
         }
     })
 
     Process {
         id: process
+
         stdinEnabled: true
         running: root.running
         command: ["cava", "-p", "/dev/stdin"]
-        
         onStarted: {
-            console.log("CavaService: Started")
-            // Write config to stdin
+            console.log("CavaService: Started");
             for (const k in config) {
                 if (typeof config[k] !== "object") {
                     write(k + "=" + config[k] + "\n");
@@ -61,34 +55,34 @@ Singleton {
             stdinEnabled = false; // Close stdin to let Cava start
             values = Array(barsCount).fill(0);
         }
-
         onExited: {
-             console.log("CavaService: Exited")
-             values = Array(barsCount).fill(0);
+            console.log("CavaService: Exited");
+            values = Array(barsCount).fill(0);
         }
 
         stdout: SplitParser {
-            onRead: data => {
+            onRead: (data) => {
                 const buffer = root._parseBuffer;
                 let idx = 0;
                 let num = 0;
-
                 for (let i = 0, len = data.length - 1; i < len; i++) {
                     const c = data.charCodeAt(i);
-                    if (c === 59) { // semicolon
+                    if (c === 59) {
+                        // semicolon
                         buffer[idx++] = num * 0.01;
                         num = 0;
-                    } else if (c >= 48 && c <= 57) { // 0-9
+                    } else if (c >= 48 && c <= 57) {
+                        // 0-9
                         num = num * 10 + (c - 48);
                     }
                 }
-                // Last value
-                if (num > 0 || idx < root.barsCount) {
+                if (num > 0 || idx < root.barsCount)
                     buffer[idx++] = num * 0.01;
-                }
 
                 root.values = buffer.slice(0, idx);
             }
         }
+
     }
+
 }

@@ -7,17 +7,14 @@ Variants {
 
     PanelWindow {
         id: win
+
         property var modelData
 
-        // 1. Link to the screen
         screen: modelData
-
-        // 2. FIXED: Use the attached property for Layer
         WlrLayershell.layer: WlrLayer.Background
         WlrLayershell.exclusionMode: ExclusionMode.Ignore
+        color: "black"
 
-        // 3. FIXED: Windows use boolean anchors for edges
-        // (You cannot use 'anchors.fill: parent' on a Window)
         anchors {
             top: true
             bottom: true
@@ -25,12 +22,12 @@ Variants {
             right: true
         }
 
-        color: "black"
-
-        // Content
         Wallpaper {
             id: wallpaper
+
             anchors.fill: parent
         }
+
     }
+
 }
