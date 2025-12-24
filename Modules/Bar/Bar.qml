@@ -146,73 +146,7 @@ Rectangle {
             }
         }
 
-        VerticalDivider {}
-
-        // 4. Enhanced Media Pill (Chip Style)
-        Rectangle {
-            id: mediaToggleButton
-            Layout.preferredHeight: 26
-            Layout.preferredWidth: Math.min(mediaRow.implicitWidth + 22, 250)
-            radius: height / 2
-            
-            // Chip Style: Semi-transparent accent background
-            color: mediaMouse.containsMouse ? Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.25) 
-                                            : Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.15)
-            
-            border.color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.5)
-            border.width: 1
-
-            Behavior on color { ColorAnimation { duration: 150 } }
-            Behavior on scale { NumberAnimation { duration: 100 } }
-            scale: mediaMouse.pressed ? 0.94 : 1.0
-
-            RowLayout {
-                id: mediaRow
-                anchors.centerIn: parent
-                spacing: 8
-                width: parent.width - 12
-
-                // Circular Play/Pause Indicator
-                Rectangle {
-                    Layout.preferredWidth: 20
-                    Layout.preferredHeight: 20
-                    Layout.leftMargin: 4
-                    radius: 10
-                    color: colors.accent // Solid accent circle
-                    
-                    Text {
-                        anchors.centerIn: parent
-                        text: MprisService.isPlaying ? "󰏤" : "󰐊" 
-                        font.family: "Symbols Nerd Font"
-                        font.pixelSize: 10
-                        color: colors.bg // Icon color (contrasts with accent)
-                        anchors.horizontalCenterOffset: MprisService.isPlaying ? 0 : 1
-                    }
-                }
-
-                Text {
-                    text: MprisService.title !== "" ? MprisService.title : "No Media"
-                    font.family: fontFamily
-                    font.pixelSize: fontSize - 2
-                    font.bold: true
-                    color: colors.fg // Text color (contrasts with bar background)
-                    opacity: 0.9
-                    
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                }
-            }
-
-            MouseArea {
-                id: mediaMouse
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                onClicked: {
-                    MprisService.playPause()
-                }
-            }
-        }
+      
 
         VerticalDivider {}
 
@@ -224,6 +158,115 @@ Rectangle {
             font.family: fontFamily
             font.bold: true
             opacity: 0.7
+        }
+
+          VerticalDivider {}
+
+        // 4. Enhanced Media Pill (Prev | Play/Pause | Next | Title)
+        Rectangle {
+            id: mediaPill
+            Layout.preferredHeight: 26
+            // Dynamically size based on content, but cap at 300px
+            Layout.preferredWidth: Math.min(mediaRow.implicitWidth + 24, 300)
+            radius: height / 2
+            
+            // Chip Style background
+            color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.15)
+            border.color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.5)
+            border.width: 1
+
+            Behavior on Layout.preferredWidth { NumberAnimation { duration: 200 } }
+
+            RowLayout {
+                id: mediaRow
+                anchors.centerIn: parent
+                spacing: 6
+                width: parent.width - 12
+
+                // --- Previous Button ---
+                Text {
+                    text: "󰒮" // Nerd Font Previous
+                    font.family: "Symbols Nerd Font"
+                    font.pixelSize: 14
+                    color: prevMouse.containsMouse ? colors.accent : colors.fg
+                    opacity: 0.8
+                    Layout.leftMargin: 4
+
+                    MouseArea {
+                        id: prevMouse
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: MprisService.previous()
+                    }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                }
+
+                // --- Play/Pause Button (Circular) ---
+                Rectangle {
+                    Layout.preferredWidth: 20
+                    Layout.preferredHeight: 20
+                    radius: 10
+                    color: playMouse.containsMouse ? colors.accentActive : colors.accent
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: MprisService.isPlaying ? "󰏤" : "󰐊" 
+                        font.family: "Symbols Nerd Font"
+                        font.pixelSize: 10
+                        color: colors.bg
+                        anchors.horizontalCenterOffset: MprisService.isPlaying ? 0 : 1
+                    }
+
+                    MouseArea {
+                        id: playMouse
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: MprisService.playPause()
+                    }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                }
+
+                // --- Next Button ---
+                Text {
+                    text: "󰒭" // Nerd Font Next
+                    font.family: "Symbols Nerd Font"
+                    font.pixelSize: 14
+                    color: nextMouse.containsMouse ? colors.accent : colors.fg
+                    opacity: 0.8
+
+                    MouseArea {
+                        id: nextMouse
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: MprisService.next()
+                    }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                }
+
+                // --- Media Title ---
+                Text {
+                    text: MprisService.title !== "" ? MprisService.title : "No Media"
+                    font.family: fontFamily
+                    font.pixelSize: fontSize - 2
+                    font.bold: true
+                    color: colors.fg
+                    opacity: 0.9
+                    
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                    Layout.leftMargin: 4
+
+                    // Clicking title also toggles play/pause for convenience
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: MprisService.playPause()
+                    }
+                }
+            }
         }
 
         Item { Layout.fillWidth: true }
