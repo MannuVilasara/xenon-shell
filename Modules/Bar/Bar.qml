@@ -213,7 +213,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: MprisService.isPlaying ? "󰏤" : "󰐊" 
                         font.family: "Symbols Nerd Font"
-                        font.pixelSize: 10
+                        font.pixelSize: 14
                         color: colors.bg
                         anchors.horizontalCenterOffset: MprisService.isPlaying ? 0 : 1
                     }
