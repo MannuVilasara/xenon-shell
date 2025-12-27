@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.Core
 import qs.Services
+import Qt5Compat.GraphicalEffects
 
 Rectangle {
     id: barRoot
@@ -62,38 +63,6 @@ Rectangle {
         }
 
         VerticalDivider {}
-
-        // 2. Info Panel Toggle
-        Rectangle {
-            Layout.preferredHeight: 26
-            Layout.preferredWidth: 26
-            radius: height / 2
-            color: "transparent"
-            border.color: colors.muted
-            border.width: 1
-
-            Text {
-                anchors.centerIn: parent
-                text: "󰃰"
-                font.pixelSize: 16
-                font.family: "Symbols Nerd Font"
-                color: colors.blue
-            }
-
-            Process {
-                id: infoPanelIpcProcess
-                command: ["quickshell", "ipc", "-c", "mannu", "call", "infopanel", "toggle"]
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                onEntered: parent.color = Qt.rgba(colors.blue.r, colors.blue.g, colors.blue.b, 0.2)
-                onExited: parent.color = "transparent"
-                onClicked: infoPanelIpcProcess.running = true
-            }
-        }
 
         // 3. Workspace Switcher
         Rectangle {
@@ -322,38 +291,6 @@ Rectangle {
                 spacing: 6
                 Text { text: "VOL"; color: colors.yellow; font.bold: true; font.pixelSize: fontSize - 2; anchors.baseline: tVol.baseline }
                 Text { id: tVol; text: volumeLevel + "%"; color: colors.fg; font.pixelSize: fontSize - 1; font.family: fontFamily; font.bold: true }
-            }
-        }
-
-        // Wallpaper Panel Toggle
-        Rectangle {
-            Layout.preferredHeight: 26
-            Layout.preferredWidth: 26
-            radius: height / 2
-            color: "transparent"
-            border.color: colors.muted
-            border.width: 1
-
-            Text {
-                anchors.centerIn: parent
-                text: "󰸉"
-                font.pixelSize: 16
-                font.family: "Symbols Nerd Font"
-                color: colors.fg
-            }
-
-            Process {
-                id: wallpaperIpcProcess
-                command: ["quickshell", "ipc", "-c", "mannu", "call", "wallpaperpanel", "toggle"]
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
-                onEntered: parent.color = Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.2)
-                onExited: parent.color = "transparent"
-                onClicked: wallpaperIpcProcess.running = true
             }
         }
 
