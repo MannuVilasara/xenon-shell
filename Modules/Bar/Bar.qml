@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import qs.Core
-import "../../Services" // Import MprisService
+import qs.Services
 
 Rectangle {
     id: barRoot
@@ -21,12 +21,22 @@ Rectangle {
     required property string activeWindow
     required property string currentLayout
     required property string time
+    property bool floating: true
 
     anchors.fill: parent
     color: colors.bg
-    radius: 12
+    radius: floating ? 12 : 0
     border.color: colors.muted
-    border.width: 1
+    border.width: floating ? 1 : 0
+    
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1
+        color: colors.muted
+        visible: !parent.floating
+    }
 
     RowLayout {
         anchors.fill: parent

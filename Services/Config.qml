@@ -11,6 +11,7 @@ Singleton {
     property int fontSize: 14
     property string wallpaperDirectory: Quickshell.env("HOME") + "/Pictures/Wallpapers"
     property bool disableHover: false
+    property bool floatingBar: false
     property var colors: null
 
     FileView {
@@ -36,6 +37,11 @@ Singleton {
 
                 if (json.disableHover !== undefined)
                     root.disableHover = json.disableHover;
+                
+                if (json.floatingBar !== undefined) {
+                    root.floatingBar = json.floatingBar;
+                    console.log("Config: floatingBar set to", root.floatingBar);
+                }
 
                 if (json.colors)
                     root.colors = json.colors;

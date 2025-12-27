@@ -24,13 +24,14 @@ Variants {
         }
 
         margins {
-            top: 5
+            top: root.context.config.floatingBar ? 5 : 0
             bottom: 0
-            left: 8
-            right: 8
+            left: root.context.config.floatingBar ? 8 : 0
+            right: root.context.config.floatingBar ? 8 : 0
         }
 
         Bar {
+            floating: root.context.config.floatingBar
             colors: root.context.colors
             fontFamily: root.context.config.fontFamily
             fontSize: root.context.config.fontSize
