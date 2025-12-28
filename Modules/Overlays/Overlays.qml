@@ -17,6 +17,21 @@ Item {
         id: notifManager
     }
 
+    // Test notification shortcut
+    Shortcut {
+        sequence: "Super+Alt+F12"
+        onActivated: {
+            // Create a test notification
+            var testNotif = notifManager.NotificationServer.sendNotification({
+                "summary": "Test Notification",
+                "body": "This is a test notification to verify the notification system is working correctly!",
+                "appIcon": "dialog-information",
+                "urgency": 1,
+                "timeout": 5000
+            });
+        }
+    }
+
     NotificationToast {
         id: toast
 
