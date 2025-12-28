@@ -13,7 +13,7 @@ PanelWindow {
     property bool isOpen: false
     required property var globalState
     required property Colors colors
-    property int currentIndex: 2
+    property int currentIndex: 0
 
     function runCommand(cmd) {
         if (cmd.includes("$USER"))
@@ -30,10 +30,10 @@ PanelWindow {
     WlrLayershell.namespace: "matte-power-menu"
     WlrLayershell.exclusiveZone: -1
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+
     onVisibleChanged: {
         if (visible)
             eventHandler.forceActiveFocus();
-
     }
 
     anchors {
@@ -45,18 +45,28 @@ PanelWindow {
 
     FocusScope {
         id: eventHandler
-
         anchors.fill: parent
         focus: true
+
         Keys.onEscapePressed: globalState.powerMenuOpen = false
-        Keys.onLeftPressed: {
-            currentIndex = (currentIndex - 1 + buttonsModel.count) % buttonsModel.count;
+        Keys.onUpPressed: {
+            currentIndex = (currentIndex - 1 + 6) % 6;
         }
-        Keys.onRightPressed: {
-            currentIndex = (currentIndex + 1) % buttonsModel.count;
+        Keys.onDownPressed: {
+            currentIndex = (currentIndex + 1) % 6;
         }
         Keys.onReturnPressed: {
             runCommand(buttonsModel.get(currentIndex).command);
+        }
+        Keys.onPressed: (event) => {
+            const key = event.text.toUpperCase();
+            for (let i = 0; i < 6; i++) {
+                if (buttonsModel.get(i).shortcut === key) {
+                    runCommand(buttonsModel.get(i).command);
+                    event.accepted = true;
+                    return;
+                }
+            }
         }
     }
 
@@ -67,38 +77,49 @@ PanelWindow {
             name: "Lock"
             icon: "󰌾"
             command: "quickshell ipc -c mannu call lock lock"
+            shortcut: "L"
         }
 
         ListElement {
             name: "Suspend"
             icon: "󰒲"
             command: "systemctl suspend"
+            shortcut: "S"
         }
 
         ListElement {
-            name: "Shutdown"
-            icon: "󰐥"
-            command: "systemctl poweroff"
+            name: "Reload"
+            icon: "󰑓"
+            command: "systemctl reboot"
+            shortcut: "D"
         }
 
         ListElement {
             name: "Reboot"
-            icon: "󰜉"
+            icon: "󰑓"
             command: "systemctl reboot"
+            shortcut: "R"
         }
 
         ListElement {
-            name: "Logout"
-            icon: "󰍃"
-            command: "loginctl terminate-user $USER"
+            name: "Power Off"
+            icon: "󰐥"
+            command: "systemctl poweroff"
+            shortcut: "P"
         }
 
+        ListElement {
+            name: "Log Out"
+            icon: "󰍃"
+            command: "loginctl terminate-user $USER"
+            shortcut: "X"
+        }
     }
 
     Rectangle {
         anchors.fill: parent
         color: "#000000"
-        opacity: isOpen ? 0.6 : 0
+        opacity: root.isOpen ? 0.4 : 0
 
         MouseArea {
             anchors.fill: parent
@@ -107,114 +128,89 @@ PanelWindow {
 
         Behavior on opacity {
             NumberAnimation {
-                duration: 200
+                duration: 300
+                easing.type: Easing.OutQuad
             }
-
         }
-
     }
 
-    Row {
+    Rectangle {
+        id: panel
         anchors.centerIn: parent
-        spacing: 30
+        width: 380
+        height: 400
+        radius: 24
+        color: root.colors.bg
+        opacity: root.isOpen ? 1 : 0
+        scale: root.isOpen ? 1 : 0.85
+
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
+        }
+
+        Behavior on scale {
+            NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+        }
 
         Repeater {
-            model: buttonsModel
+            model: 6
 
-            delegate: Rectangle {
-                id: delegateRoot
+            Rectangle {
+                x: 20
+                y: 30 + index * 58
+                width: 340
+                height: 50
+                radius: 12
+                color: root.currentIndex === index ? root.colors.accent : "transparent"
 
-                required property string name
-                required property string icon
-                required property string command
-                required property int index
-                property bool isSelected: root.currentIndex === index
-                property bool isHovered: mouseArea.containsMouse
+                Behavior on color {
+                    ColorAnimation { duration: 150 }
+                }
 
-                width: isSelected || isHovered ? 140 : 100
-                height: 140
-                radius: 24
-                z: isSelected || isHovered ? 10 : 1
-                color: (isSelected || isHovered) ? root.colors.accent : root.colors.surface
-                border.width: 1
-                border.color: (isSelected || isHovered) ? root.colors.accent : root.colors.border
+                Text {
+                    x: 16
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).icon
+                    font.pixelSize: 20
+                    font.family: "Symbols Nerd Font"
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
+                    opacity: root.currentIndex === index ? 1 : 0.7
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    spacing: 8
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
+                }
 
-                    Text {
-                        text: delegateRoot.icon
-                        font.pixelSize: 42
-                        font.family: "Symbols Nerd Font"
-                        color: (delegateRoot.isSelected || delegateRoot.isHovered) ? root.colors.bg : root.colors.text
-                        Layout.alignment: Qt.AlignHCenter
-                    }
+                Text {
+                    x: 60
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).name
+                    font.pixelSize: 15
+                    font.weight: Font.Medium
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
 
-                    Text {
-                        text: delegateRoot.name
-                        font.pixelSize: 14
-                        font.weight: Font.Bold
-                        color: (delegateRoot.isSelected || delegateRoot.isHovered) ? root.colors.bg : root.colors.text
-                        opacity: (delegateRoot.isSelected || delegateRoot.isHovered) ? 1 : 0
-                        visible: opacity > 0
-                        Layout.alignment: Qt.AlignHCenter
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                }
 
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 200
-                            }
+                Text {
+                    x: parent.width - 40
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).shortcut
+                    font.pixelSize: 13
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
+                    opacity: root.currentIndex === index ? 0.8 : 0.5
 
-                        }
-
-                    }
-
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
                 }
 
                 MouseArea {
-                    id: mouseArea
-
                     anchors.fill: parent
                     hoverEnabled: true
                     onEntered: root.currentIndex = index
-                    onClicked: root.runCommand(delegateRoot.command)
+                    onClicked: root.runCommand(buttonsModel.get(index).command)
+                    cursorShape: Qt.PointingHandCursor
                 }
-
-                Behavior on width {
-                    NumberAnimation {
-                        duration: 250
-                        easing.type: Easing.OutExpo
-                    }
-
-                }
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 200
-                    }
-
-                }
-
-                Behavior on border.color {
-                    ColorAnimation {
-                        duration: 200
-                    }
-
-                }
-
             }
-
         }
-
-        move: Transition {
-            NumberAnimation {
-                properties: "x"
-                duration: 250
-                easing.type: Easing.OutExpo
-            }
-
-        }
-
     }
-
 }
