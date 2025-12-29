@@ -13,7 +13,7 @@ PanelWindow {
     property bool isOpen: false
     required property var globalState
     required property Colors colors
-    property int currentIndex: 2
+    property int currentIndex: 0
 
     function runCommand(cmd) {
         if (cmd.includes("$USER"))
@@ -49,14 +49,24 @@ PanelWindow {
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: globalState.powerMenuOpen = false
-        Keys.onLeftPressed: {
+        Keys.onUpPressed: {
             currentIndex = (currentIndex - 1 + buttonsModel.count) % buttonsModel.count;
         }
-        Keys.onRightPressed: {
+        Keys.onDownPressed: {
             currentIndex = (currentIndex + 1) % buttonsModel.count;
         }
         Keys.onReturnPressed: {
             runCommand(buttonsModel.get(currentIndex).command);
+        }
+        Keys.onPressed: (event) => {
+            const key = event.text.toUpperCase();
+            for (let i = 0; i < buttonsModel.count; i++) {
+                if (buttonsModel.get(i).shortcut === key) {
+                    runCommand(buttonsModel.get(i).command);
+                    event.accepted = true;
+                    return ;
+                }
+            }
         }
     }
 
@@ -67,30 +77,42 @@ PanelWindow {
             name: "Lock"
             icon: "󰌾"
             command: "quickshell ipc -c mannu call lock lock"
+            shortcut: "L"
         }
 
         ListElement {
             name: "Suspend"
             icon: "󰒲"
             command: "systemctl suspend"
+            shortcut: "S"
         }
 
         ListElement {
-            name: "Shutdown"
-            icon: "󰐥"
-            command: "systemctl poweroff"
+            name: "Reload"
+            icon: "󰑓"
+            command: "pkill qs && qs -c mannu &"
+            shortcut: "D"
         }
 
         ListElement {
             name: "Reboot"
-            icon: "󰜉"
+            icon: "󰑓"
             command: "systemctl reboot"
+            shortcut: "R"
         }
 
         ListElement {
-            name: "Logout"
+            name: "Power Off"
+            icon: "󰐥"
+            command: "systemctl poweroff"
+            shortcut: "P"
+        }
+
+        ListElement {
+            name: "Log Out"
             icon: "󰍃"
             command: "loginctl terminate-user $USER"
+            shortcut: "X"
         }
 
     }
@@ -98,7 +120,7 @@ PanelWindow {
     Rectangle {
         anchors.fill: parent
         color: "#000000"
-        opacity: isOpen ? 0.6 : 0
+        opacity: root.isOpen ? 0.4 : 0
 
         MouseArea {
             anchors.fill: parent
@@ -107,64 +129,96 @@ PanelWindow {
 
         Behavior on opacity {
             NumberAnimation {
-                duration: 200
+                duration: 300
+                easing.type: Easing.OutQuad
             }
 
         }
 
     }
 
-    Row {
+    Rectangle {
+        id: panel
+
         anchors.centerIn: parent
-        spacing: 30
+        width: 380
+        height: 400
+        radius: 24
+        color: root.colors.bg
+        opacity: root.isOpen ? 1 : 0
+        scale: root.isOpen ? 1 : 0.85
 
         Repeater {
-            model: buttonsModel
+            model: buttonsModel.count
 
-            delegate: Rectangle {
-                id: delegateRoot
+            Rectangle {
+                x: 20
+                y: 30 + index * 58
+                width: 340
+                height: 50
+                radius: 12
+                color: root.currentIndex === index ? root.colors.accent : "transparent"
 
-                required property string name
-                required property string icon
-                required property string command
-                required property int index
-                property bool isSelected: root.currentIndex === index
-                property bool isHovered: mouseArea.containsMouse
+                Text {
+                    x: 16
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).icon
+                    font.pixelSize: 20
+                    font.family: "Symbols Nerd Font"
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
+                    opacity: root.currentIndex === index ? 1 : 0.7
 
-                width: isSelected || isHovered ? 140 : 100
-                height: 140
-                radius: 24
-                z: isSelected || isHovered ? 10 : 1
-                color: (isSelected || isHovered) ? root.colors.accent : root.colors.surface
-                border.width: 1
-                border.color: (isSelected || isHovered) ? root.colors.accent : root.colors.border
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    spacing: 8
-
-                    Text {
-                        text: delegateRoot.icon
-                        font.pixelSize: 42
-                        font.family: "Symbols Nerd Font"
-                        color: (delegateRoot.isSelected || delegateRoot.isHovered) ? root.colors.bg : root.colors.text
-                        Layout.alignment: Qt.AlignHCenter
                     }
 
-                    Text {
-                        text: delegateRoot.name
-                        font.pixelSize: 14
-                        font.weight: Font.Bold
-                        color: (delegateRoot.isSelected || delegateRoot.isHovered) ? root.colors.bg : root.colors.text
-                        opacity: (delegateRoot.isSelected || delegateRoot.isHovered) ? 1 : 0
-                        visible: opacity > 0
-                        Layout.alignment: Qt.AlignHCenter
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 150
+                        }
 
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 200
-                            }
+                    }
 
+                }
+
+                Text {
+                    x: 60
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).name
+                    font.pixelSize: 15
+                    font.weight: Font.Medium
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+
+                    }
+
+                }
+
+                Text {
+                    x: parent.width - 40
+                    y: (parent.height - height) / 2
+                    text: buttonsModel.get(index).shortcut
+                    font.pixelSize: 13
+                    color: root.currentIndex === index ? root.colors.bg : root.colors.text
+                    opacity: root.currentIndex === index ? 0.8 : 0.5
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+
+                    }
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 150
                         }
 
                     }
@@ -172,32 +226,16 @@ PanelWindow {
                 }
 
                 MouseArea {
-                    id: mouseArea
-
                     anchors.fill: parent
                     hoverEnabled: true
                     onEntered: root.currentIndex = index
-                    onClicked: root.runCommand(delegateRoot.command)
-                }
-
-                Behavior on width {
-                    NumberAnimation {
-                        duration: 250
-                        easing.type: Easing.OutExpo
-                    }
-
+                    onClicked: root.runCommand(buttonsModel.get(index).command)
+                    cursorShape: Qt.PointingHandCursor
                 }
 
                 Behavior on color {
                     ColorAnimation {
-                        duration: 200
-                    }
-
-                }
-
-                Behavior on border.color {
-                    ColorAnimation {
-                        duration: 200
+                        duration: 150
                     }
 
                 }
@@ -206,11 +244,17 @@ PanelWindow {
 
         }
 
-        move: Transition {
+        Behavior on opacity {
             NumberAnimation {
-                properties: "x"
-                duration: 250
-                easing.type: Easing.OutExpo
+                duration: 300
+            }
+
+        }
+
+        Behavior on scale {
+            NumberAnimation {
+                duration: 400
+                easing.type: Easing.OutBack
             }
 
         }
