@@ -14,6 +14,7 @@ ColumnLayout {
     required property var theme
     required property var notifManager
     required property var volumeService
+    required property var bluetoothService
 
     signal requestWifiMenu()
     signal requestBluetoothMenu()
@@ -135,9 +136,9 @@ ColumnLayout {
             Layout.fillWidth: true
             implicitHeight: 64
             label: "Bluetooth"
-            sublabel: BluetoothService.enabled ? (BluetoothService.connectedDevices.length > 0 ? BluetoothService.connectedDevices[0].name : "On") : "Off"
+            sublabel: bluetoothService.enabled ? (bluetoothService.connectedDevices.length > 0 ? bluetoothService.connectedDevices[0].name : "On") : "Off"
             icon: "󰂯"
-            active: BluetoothService.enabled
+            active: bluetoothService.enabled
             showChevron: true
             theme: root.theme
 
@@ -149,7 +150,7 @@ ColumnLayout {
                     if (mouse.button === Qt.RightButton)
                         root.requestBluetoothMenu();
                     else
-                        BluetoothService.toggleBluetooth();
+                        bluetoothService.toggleBluetooth();
                 }
             }
 

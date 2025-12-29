@@ -10,6 +10,7 @@ Control {
 
     required property var globalState
     required property var theme
+    required property var bluetoothService
 
     signal backRequested()
 
@@ -64,17 +65,17 @@ Control {
                 width: 44
                 height: 24
                 radius: 12
-                color: BluetoothService.enabled ? theme.accentActive : theme.surface
-                border.width: BluetoothService.enabled ? 0 : 1
+                color: bluetoothService.enabled ? theme.accentActive : theme.surface
+                border.width: bluetoothService.enabled ? 0 : 1
                 border.color: theme.border
 
                 Rectangle {
-                    x: BluetoothService.enabled ? 22 : 2
+                    x: bluetoothService.enabled ? 22 : 2
                     anchors.verticalCenter: parent.verticalCenter
                     width: 20
                     height: 20
                     radius: 10
-                    color: BluetoothService.enabled ? "#FFFFFF" : theme.subtext
+                    color: bluetoothService.enabled ? "#FFFFFF" : theme.subtext
 
                     Behavior on x {
                         NumberAnimation {
@@ -86,7 +87,7 @@ Control {
                 }
 
                 TapHandler {
-                    onTapped: BluetoothService.toggleBluetooth()
+                    onTapped: bluetoothService.toggleBluetooth()
                 }
 
                 HoverHandler {
@@ -98,7 +99,7 @@ Control {
         }
 
         Text {
-            visible: !BluetoothService.enabled
+            visible: !bluetoothService.enabled
             text: "Bluetooth is Off"
             color: theme.muted
             anchors.centerIn: parent
@@ -110,8 +111,8 @@ Control {
             Layout.fillHeight: true
             clip: true
             spacing: 4
-            visible: BluetoothService.enabled
-            model: BluetoothService.devices
+            visible: bluetoothService.enabled
+            model: bluetoothService.devicesList
 
             delegate: Rectangle {
                 width: parent.width
@@ -127,10 +128,12 @@ Control {
 
                 TapHandler {
                     onTapped: {
-                        if (modelData.connected)
-                            modelData.disconnect();
-                        else
-                            modelData.connect();
+                        if (modelData.paired || modelData.trusted) {
+                            if (modelData.connected) bluetoothService.disconnectDevice(modelData);
+                            else bluetoothService.connectDevice(modelData);
+                        } else {
+                            bluetoothService.pairDevice(modelData);
+                        }
                     }
                 }
 
@@ -140,7 +143,7 @@ Control {
                     spacing: 12
 
                     Text {
-                        text: "󰂯"
+                        text: bluetoothService.getDeviceIcon(modelData)
                         font.family: "Symbols Nerd Font"
                         font.pixelSize: 20
                         color: modelData.connected ? theme.accentActive : theme.secondary

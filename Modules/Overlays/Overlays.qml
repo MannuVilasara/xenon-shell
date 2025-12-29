@@ -32,6 +32,7 @@ Item {
         colors: root.context.colors
         toastHovered: toast.hovered
         volumeService: root.context.volume
+        bluetoothService: root.context.bluetooth
     }
 
     WallpaperPanel {

@@ -16,6 +16,7 @@ PanelWindow {
     required property var globalState
     required property var notifManager
     required property var volumeService
+    required property var bluetoothService
     required property Colors colors
     property alias theme: theme
     readonly property int peekWidth: 10
@@ -47,7 +48,7 @@ PanelWindow {
     }
 
     function toggleMenu(menu) {
-        if (root.currentMenu === menu) {
+        if (menu === "" || root.currentMenu === menu) {
             menuLoader.active = false;
             root.currentMenu = "";
         } else {
@@ -180,12 +181,8 @@ PanelWindow {
         enabled: menuLoader.active || forcedOpen
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: {
-            if (menuLoader.active)
-                toggleMenu("");
-
-            if (forcedOpen)
-                hide();
-
+            root.hide();
+            root.toggleMenu("");
         }
     }
 
@@ -242,23 +239,10 @@ PanelWindow {
                 onRequestBluetoothMenu: toggleMenu("bluetooth")
                 onRequestPowerMenu: root.globalState.powerMenuOpen = true
                 volumeService: root.volumeService
+                bluetoothService: root.bluetoothService
             }
 
-            Rectangle {
-                width: parent.width
-                height: 1
-                color: theme.border
-                visible: menuLoader.active
-                opacity: menuLoader.active ? 1 : 0
 
-                Behavior on opacity {
-                    NumberAnimation {
-                        duration: 200
-                    }
-
-                }
-
-            }
 
             Loader {
                 id: menuLoader
@@ -341,6 +325,7 @@ PanelWindow {
         Views.BluetoothView {
             theme: root.theme
             globalState: root.globalState
+            bluetoothService: root.bluetoothService
             onBackRequested: toggleMenu("") // Close
         }
 
@@ -389,6 +374,14 @@ PanelWindow {
                 easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
             }
 
+        }
+
+        Behavior on height {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
+            }
         }
 
     }

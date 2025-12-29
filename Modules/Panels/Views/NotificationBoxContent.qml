@@ -13,9 +13,6 @@ ColumnLayout {
 
     width: 320
     spacing: 0
-    Layout.preferredHeight: 280
-    Layout.minimumHeight: 100
-    Layout.maximumHeight: 280
     clip: true
 
     Rectangle {
@@ -86,8 +83,7 @@ ColumnLayout {
         id: notifList
 
         Layout.fillWidth: true
-        Layout.fillHeight: true
-        Layout.minimumHeight: 280
+        Layout.preferredHeight: Math.min(contentHeight > 0 ? contentHeight : 110, 300)
         clip: true
         spacing: 10
         model: root.notifManager.notifications

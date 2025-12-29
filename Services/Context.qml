@@ -16,6 +16,7 @@ Item {
     property alias layout: layoutService
     property alias appState: appStateService
     property var network: NetworkService
+    property var bluetooth: BluetoothService
 
     Colors {
         id: colorsService
