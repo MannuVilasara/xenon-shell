@@ -26,6 +26,10 @@ WlSessionLockSurface {
     // Notifications
     ListModel { id: notifications }
 
+    // Local system services (avoid Context singleton to prevent crashes)
+    CpuService { id: cpuService }
+    MemService { id: memService }
+
     NotificationServer {
         id: server
         bodySupported: true
@@ -568,23 +572,165 @@ WlSessionLockSurface {
                     Layout.fillHeight: true
                     spacing: 12
 
-                    // System Stats Card
+                    // System Stats Card (Enhanced)
                     BentoCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 120
+                        Layout.preferredHeight: 160
                         cardColor: root.colors.surface
                         borderColor: root.colors.border
 
                         ColumnLayout {
-                            anchors.centerIn: parent
+                            anchors.fill: parent
+                            anchors.margins: 14
                             spacing: 10
 
-                            Text { text: "System"; color: root.colors.fg; font.pixelSize: 11; font.bold: true; Layout.alignment: Qt.AlignHCenter }
-
+                            // Header
                             RowLayout {
-                                spacing: 16; Layout.alignment: Qt.AlignHCenter
-                                ProgressRing { width: 45; height: 45; progress: 0.5; ringColor: root.colors.accent; bgColor: root.colors.muted; label: "CPU"; textColor: root.colors.fg; mutedColor: root.colors.muted }
-                                ProgressRing { width: 45; height: 45; progress: 0.6; ringColor: root.colors.secondary; bgColor: root.colors.muted; label: "RAM"; textColor: root.colors.fg; mutedColor: root.colors.muted }
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Rectangle {
+                                    width: 22
+                                    height: 22
+                                    radius: 6
+                                    color: Qt.rgba(root.colors.accent.r, root.colors.accent.g, root.colors.accent.b, 0.2)
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "󰒋"
+                                        font.family: "Symbols Nerd Font"
+                                        font.pixelSize: 12
+                                        color: root.colors.accent
+                                    }
+                                }
+
+                                Text {
+                                    text: "System"
+                                    color: root.colors.fg
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                }
+                            }
+
+                            // Large CPU & RAM rings
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                spacing: 8
+
+                                // CPU
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    color: "transparent"
+
+                                    Canvas {
+                                        id: cpuCanvas
+                                        anchors.centerIn: parent
+                                        width: 70
+                                        height: 70
+
+                                        property real progress: cpuService.usage / 100
+                                        onProgressChanged: requestPaint()
+
+                                        onPaint: {
+                                            var ctx = getContext("2d")
+                                            ctx.reset()
+                                            var cx = width / 2, cy = height / 2, r = 28, lw = 6
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+                                            ctx.strokeStyle = Qt.rgba(root.colors.muted.r, root.colors.muted.g, root.colors.muted.b, 0.15)
+                                            ctx.lineWidth = lw
+                                            ctx.stroke()
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress))
+                                            ctx.strokeStyle = root.colors.accent
+                                            ctx.lineCap = "round"
+                                            ctx.lineWidth = lw
+                                            ctx.stroke()
+                                        }
+
+                                        Component.onCompleted: requestPaint()
+                                    }
+
+                                    ColumnLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 0
+
+                                        Text {
+                                            text: cpuService.usage + "%"
+                                            color: root.colors.fg
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                        }
+
+                                        Text {
+                                            text: "CPU"
+                                            color: root.colors.accent
+                                            font.pixelSize: 9
+                                            font.bold: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                        }
+                                    }
+                                }
+
+                                // RAM
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    color: "transparent"
+
+                                    Canvas {
+                                        id: ramCanvas
+                                        anchors.centerIn: parent
+                                        width: 70
+                                        height: 70
+
+                                        property real progress: memService.usage / 100
+                                        onProgressChanged: requestPaint()
+
+                                        onPaint: {
+                                            var ctx = getContext("2d")
+                                            ctx.reset()
+                                            var cx = width / 2, cy = height / 2, r = 28, lw = 6
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+                                            ctx.strokeStyle = Qt.rgba(root.colors.muted.r, root.colors.muted.g, root.colors.muted.b, 0.15)
+                                            ctx.lineWidth = lw
+                                            ctx.stroke()
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress))
+                                            ctx.strokeStyle = root.colors.secondary
+                                            ctx.lineCap = "round"
+                                            ctx.lineWidth = lw
+                                            ctx.stroke()
+                                        }
+
+                                        Component.onCompleted: requestPaint()
+                                    }
+
+                                    ColumnLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 0
+
+                                        Text {
+                                            text: memService.usage + "%"
+                                            color: root.colors.fg
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                        }
+
+                                        Text {
+                                            text: "RAM"
+                                            color: root.colors.secondary
+                                            font.pixelSize: 9
+                                            font.bold: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -673,38 +819,40 @@ WlSessionLockSurface {
                                         required property string appName
                                         required property string time
                                         width: ListView.view ? ListView.view.width : 100
-                                        height: 44
+                                        height: 50
                                         radius: 8
-                                        color: Qt.rgba(root.colors.tileActive.r, root.colors.tileActive.g, root.colors.tileActive.b, 0.4)
+                                        color: Qt.rgba(root.colors.surface.r, root.colors.surface.g, root.colors.surface.b, 0.8)
+                                        border.width: 1
+                                        border.color: Qt.rgba(root.colors.border.r, root.colors.border.g, root.colors.border.b, 0.3)
 
                                         RowLayout {
                                             anchors.fill: parent
-                                            anchors.margins: 6
-                                            spacing: 6
+                                            anchors.margins: 8
+                                            spacing: 8
 
                                             Rectangle {
-                                                Layout.preferredWidth: 26
-                                                Layout.preferredHeight: 26
-                                                radius: 6
-                                                color: root.colors.surface
+                                                Layout.preferredWidth: 30
+                                                Layout.preferredHeight: 30
+                                                radius: 8
+                                                color: Qt.rgba(root.colors.accent.r, root.colors.accent.g, root.colors.accent.b, 0.2)
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     text: "󰍡"
                                                     font.family: "Symbols Nerd Font"
-                                                    font.pixelSize: 12
+                                                    font.pixelSize: 14
                                                     color: root.colors.accent
                                                 }
                                             }
 
                                             ColumnLayout {
                                                 Layout.fillWidth: true
-                                                spacing: 1
+                                                spacing: 2
 
                                                 Text {
                                                     text: summary
                                                     color: root.colors.fg
-                                                    font.pixelSize: 9
+                                                    font.pixelSize: 10
                                                     font.bold: true
                                                     Layout.fillWidth: true
                                                     elide: Text.ElideRight
@@ -713,8 +861,8 @@ WlSessionLockSurface {
 
                                                 Text {
                                                     text: body || appName
-                                                    color: root.colors.muted
-                                                    font.pixelSize: 8
+                                                    color: Qt.rgba(root.colors.fg.r, root.colors.fg.g, root.colors.fg.b, 0.7)
+                                                    font.pixelSize: 9
                                                     Layout.fillWidth: true
                                                     elide: Text.ElideRight
                                                     maximumLineCount: 1
@@ -724,7 +872,7 @@ WlSessionLockSurface {
                                             Text {
                                                 text: time
                                                 color: root.colors.muted
-                                                font.pixelSize: 7
+                                                font.pixelSize: 8
                                                 Layout.alignment: Qt.AlignTop
                                             }
                                         }
