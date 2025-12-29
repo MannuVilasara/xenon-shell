@@ -50,17 +50,17 @@ PanelWindow {
 
         Keys.onEscapePressed: globalState.powerMenuOpen = false
         Keys.onUpPressed: {
-            currentIndex = (currentIndex - 1 + 6) % 6;
+            currentIndex = (currentIndex - 1 + buttonsModel.count) % buttonsModel.count;
         }
         Keys.onDownPressed: {
-            currentIndex = (currentIndex + 1) % 6;
+            currentIndex = (currentIndex + 1) % buttonsModel.count;
         }
         Keys.onReturnPressed: {
             runCommand(buttonsModel.get(currentIndex).command);
         }
         Keys.onPressed: (event) => {
             const key = event.text.toUpperCase();
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < buttonsModel.count; i++) {
                 if (buttonsModel.get(i).shortcut === key) {
                     runCommand(buttonsModel.get(i).command);
                     event.accepted = true;
@@ -153,7 +153,7 @@ PanelWindow {
         }
 
         Repeater {
-            model: 6
+            model: buttonsModel.count
 
             Rectangle {
                 x: 20
