@@ -23,6 +23,7 @@ Rectangle {
     required property string currentLayout
     required property string time
     property bool floating: true
+    property var volumeService
 
     anchors.fill: parent
     color: colors.bg
@@ -399,13 +400,28 @@ Rectangle {
                 Text {
                     id: tVol
 
-                    text: volumeLevel + "%"
-                    color: colors.fg
+                    text: (volumeService && volumeService.muted) ? "MUT" : (volumeLevel + "%")
+                    color: (volumeService && volumeService.muted) ? colors.red : colors.fg
                     font.pixelSize: fontSize - 1
                     font.family: fontFamily
                     font.bold: true
                 }
 
+            }
+            
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (volumeService) volumeService.toggleMute();
+                }
+                onWheel: (wheel) => {
+                    if (!volumeService) return;
+                    if (wheel.angleDelta.y > 0)
+                        volumeService.increaseVolume();
+                    else
+                        volumeService.decreaseVolume();
+                }
             }
 
         }

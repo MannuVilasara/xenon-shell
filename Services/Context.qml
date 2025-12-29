@@ -11,6 +11,7 @@ Item {
     property alias mem: memService
     property alias disk: diskService
     property alias time: timeService
+    property alias volume: volumeService
     property alias activeWindow: activeWindowService
     property alias layout: layoutService
     property alias appState: appStateService
@@ -49,6 +50,10 @@ Item {
 
     GlobalState {
         id: appStateService
+    }
+
+    VolumeService {
+        id: volumeService
     }
 
 }

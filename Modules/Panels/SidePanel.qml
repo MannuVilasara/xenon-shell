@@ -15,6 +15,7 @@ PanelWindow {
 
     required property var globalState
     required property var notifManager
+    required property var volumeService
     required property Colors colors
     property alias theme: theme
     readonly property int peekWidth: 10
@@ -223,6 +224,7 @@ PanelWindow {
                 onRequestWifiMenu: toggleMenu("wifi")
                 onRequestBluetoothMenu: toggleMenu("bluetooth")
                 onRequestPowerMenu: root.globalState.powerMenuOpen = true
+                volumeService: root.volumeService
             }
 
             Rectangle {

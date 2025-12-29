@@ -43,6 +43,7 @@ Variants {
             activeWindow: root.context.activeWindow.title
             currentLayout: root.context.layout.layout
             time: root.context.time.currentTime
+            volumeService: root.context.volume
         }
 
     }

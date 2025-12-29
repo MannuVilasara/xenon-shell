@@ -13,6 +13,7 @@ ColumnLayout {
     required property var globalState
     required property var theme
     required property var notifManager
+    required property var volumeService
 
     signal requestWifiMenu()
     signal requestBluetoothMenu()
@@ -186,10 +187,10 @@ ColumnLayout {
         Views.SliderControl {
             label: "Volume"
             icon: "󰕾"
-            value: VolumeService.volume
+            value: volumeService.volume
             theme: root.theme
             onChangeRequested: (v) => {
-                return VolumeService.setVolume(v);
+                return volumeService.setVolume(v);
             }
         }
 

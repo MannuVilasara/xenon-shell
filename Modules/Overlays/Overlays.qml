@@ -31,6 +31,7 @@ Item {
         notifManager: notifManager
         colors: root.context.colors
         toastHovered: toast.hovered
+        volumeService: root.context.volume
     }
 
     WallpaperPanel {
