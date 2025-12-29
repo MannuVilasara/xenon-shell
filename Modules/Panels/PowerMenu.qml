@@ -90,7 +90,7 @@ PanelWindow {
         ListElement {
             name: "Reload"
             icon: "󰑓"
-            command: "systemctl reboot"
+            command: "pkill qs && qs -c mannu &"
             shortcut: "D"
         }
 
