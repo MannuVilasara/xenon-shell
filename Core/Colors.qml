@@ -26,6 +26,15 @@ Item {
     property color secondary: subtext
     property color iconMuted: subtext
     property color red_dim: Qt.rgba(red.r, red.g, red.b, 0.1)
+
+    // Widget Defaults
+    property int toggleHeight: 64
+    property int toggleIconSize: 24
+    property int sliderHeight: 64
+    property int sliderIconSize: 20
+    property color sliderTrack: surface
+    property color sliderFill: accent
+    property color sliderThumb: fg
     property var loadedColors: null
 
     function refreshColors() {

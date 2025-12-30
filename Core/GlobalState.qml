@@ -9,6 +9,7 @@ QtObject {
     property bool wallpaperPanelOpen: false
     property bool powerMenuOpen: false
     property bool infoPanelOpen: false
+    property bool settingsOpen: false
 
     signal requestSidePanelMenu(string menu)
 
@@ -18,6 +19,15 @@ QtObject {
         } else {
             closeAll();
             launcherOpen = true;
+        }
+    }
+    
+    function toggleSettings() {
+        if (settingsOpen) {
+           settingsOpen = false;
+        } else {
+           closeAll();
+           settingsOpen = true;
         }
     }
 
@@ -73,6 +83,7 @@ QtObject {
         wallpaperPanelOpen = false;
         powerMenuOpen = false;
         infoPanelOpen = false;
+        settingsOpen = false;
     }
 
 }

@@ -3,6 +3,7 @@ import qs.Modules.Background
 import qs.Modules.Bar
 import qs.Modules.Lock
 import qs.Modules.Overlays
+import qs.Modules.Settings
 import qs.Services
 
 ShellRoot {
@@ -24,6 +25,10 @@ ShellRoot {
     }
 
     BarWindow {
+        context: ctx
+    }
+
+    SettingsWindow {
         context: ctx
     }
 

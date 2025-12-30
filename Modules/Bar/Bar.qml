@@ -504,6 +504,15 @@ Rectangle {
                 font.bold: true
             }
 
+            TapHandler {
+                onTapped: globalState.toggleSettings()
+                cursorShape: Qt.PointingHandCursor
+            }
+
+            HoverHandler {
+                cursorShape: Qt.PointingHandCursor
+            }
+
         }
 
         // Power Menu
