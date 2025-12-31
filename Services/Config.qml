@@ -17,6 +17,7 @@ Singleton {
     property var openRgbDevices: [0]
     property bool disableLockBlur: false
     property bool disableLockAnimation: false
+    property bool lockScreenCustomBackground: false
     property bool debug: false
 
     onDebugChanged: {
@@ -39,6 +40,7 @@ Singleton {
         configAdapter.openRgbDevices = root.openRgbDevices;
         configAdapter.disableLockBlur = root.disableLockBlur;
         configAdapter.disableLockAnimation = root.disableLockAnimation;
+        configAdapter.lockScreenCustomBackground = root.lockScreenCustomBackground;
         configAdapter.debug = root.debug;
 
         configFile.writeAdapter();
@@ -60,6 +62,7 @@ Singleton {
     onOpenRgbDevicesChanged: if (!_loading) saveTimer.restart()
     onDisableLockBlurChanged: if (!_loading) saveTimer.restart()
     onDisableLockAnimationChanged: if (!_loading) saveTimer.restart()
+    onLockScreenCustomBackgroundChanged: if (!_loading) saveTimer.restart()
 
     FileView {
         id: configFile
@@ -84,6 +87,7 @@ Singleton {
             property var openRgbDevices
             property bool disableLockBlur
             property bool disableLockAnimation
+            property bool lockScreenCustomBackground
             property bool debug
         }
 
@@ -98,6 +102,7 @@ Singleton {
                 if (configAdapter.colors) root.colors = configAdapter.colors;
                 if (configAdapter.disableLockBlur !== undefined) root.disableLockBlur = configAdapter.disableLockBlur;
                 if (configAdapter.disableLockAnimation !== undefined) root.disableLockAnimation = configAdapter.disableLockAnimation;
+                if (configAdapter.lockScreenCustomBackground !== undefined) root.lockScreenCustomBackground = configAdapter.lockScreenCustomBackground;
                 if (configAdapter.debug !== undefined) root.debug = configAdapter.debug;
 
                 if (configAdapter.openRgbDevices !== undefined) {

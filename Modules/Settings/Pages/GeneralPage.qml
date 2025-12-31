@@ -20,34 +20,6 @@ ColumnLayout {
         color: colors.fg
     }
 
-    ToggleButton {
-        Layout.fillWidth: true
-        label: "Lock Screen Blur"
-        sublabel: "Enable blur effect on lock screen"
-        icon: "󰂚"
-        active: !Config.disableLockBlur
-        theme: colors
-        onActiveChanged: {
-            if (active !== !Config.disableLockBlur) {
-                Config.disableLockBlur = !active
-            }
-        }
-    }
-
-    ToggleButton {
-        Layout.fillWidth: true
-        label: "Lock Screen Animation"
-        sublabel: "Enable startup animation on lock screen"
-        icon: "󰑮"
-        active: !Config.disableLockAnimation
-        theme: colors
-        onActiveChanged: {
-            if (active !== !Config.disableLockAnimation) {
-                Config.disableLockAnimation = !active
-            }
-        }
-    }
-
     // Font Family Input
     SettingItem {
         label: "Font Family"

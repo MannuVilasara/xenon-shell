@@ -46,17 +46,37 @@ WlSessionLockSurface {
         }
     }
 
-    // Blurred window preview background
-    ScreencopyView {
+    // Background Container
+    Item {
         id: bg
         anchors.fill: parent
-        captureSource: root.screen
         opacity: Config.disableLockAnimation ? 1 : 0
-        layer.enabled: visible && opacity > 0 && !Config.disableLockBlur
 
-        layer.effect: FastBlur {
-            radius: 48
-            transparentBorder: true
+        // Blurred window preview background (Default)
+        ScreencopyView {
+            anchors.fill: parent
+            captureSource: root.screen
+            visible: !Config.lockScreenCustomBackground
+            layer.enabled: visible && bg.opacity > 0 && !Config.disableLockBlur
+
+            layer.effect: FastBlur {
+                radius: 48
+                transparentBorder: true
+            }
+        }
+
+        // Wallpaper Background (Custom)
+        Image {
+            anchors.fill: parent
+            source: Config.lockScreenCustomBackground ? ("file://" + WallpaperService.getWallpaper(root.screen.name)) : ""
+            fillMode: Image.PreserveAspectCrop
+            visible: Config.lockScreenCustomBackground
+            
+            layer.enabled: visible && bg.opacity > 0 && !Config.disableLockBlur
+            layer.effect: FastBlur {
+                radius: 48
+                transparentBorder: true
+            }
         }
     }
 

@@ -179,6 +179,7 @@ FloatingWindow {
                     SidebarItem { label: "General"; icon: "󰒓"; page: "General" }
                     SidebarItem { label: "Bar"; icon: "󰛡"; page: "Bar" }
                     SidebarItem { label: "Background"; icon: "󰸉"; page: "Background" }
+                    SidebarItem { label: "Lock Screen"; icon: "󰌾"; page: "LockScreen" }
                     SidebarItem { label: "Interface"; icon: "󰏇"; page: "Interface" }
                     SidebarItem { label: "Services"; icon: "󰒋"; page: "Services" }
                     
@@ -233,6 +234,7 @@ FloatingWindow {
                             case "General": return "Pages/GeneralPage.qml";
                             case "Bar": return "Pages/BarPage.qml";
                             case "Background": return "Pages/BackgroundPage.qml";
+                            case "LockScreen": return "Pages/LockScreenPage.qml";
                             case "Interface": return "Pages/InterfacePage.qml";
                             case "Services": return "Pages/ServicesPage.qml";
                             default: return "Pages/GeneralPage.qml";
