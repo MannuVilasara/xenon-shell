@@ -35,7 +35,7 @@ PanelWindow {
     }
 
     Connections {
-        function onPopupVisibleChanged() {
+        function showNotification() {
             if (manager.popupVisible && manager.currentPopup) {
                 root.notifTitle = manager.currentPopup.summary || "Notification";
                 root.notifBody = manager.currentPopup.body || "";
@@ -46,6 +46,14 @@ PanelWindow {
                 dismissTimer.restart();
                 Logger.d("Toast", "New notification captured: " + root.notifTitle);
             }
+        }
+
+        function onPopupVisibleChanged() {
+            showNotification();
+        }
+
+        function onCurrentPopupChanged() {
+            showNotification();
         }
 
         target: manager

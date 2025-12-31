@@ -20,50 +20,24 @@ ColumnLayout {
     }
 
     // Wallpaper Directory
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 64
-        radius: 12
-        color: colors.tile
-        border.width: 1
-        border.color: colors.border
-        
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 16
-            spacing: 12
+    SettingItem {
+        label: "Wallpaper Directory"
+        sublabel: "Path to wallpaper folder"
+        icon: "󰸉"
+        colors: context.colors
+
+        TextField {
+            Layout.preferredWidth: 350
+            text: Config.wallpaperDirectory
+            font.pixelSize: 13
+            color: colors.fg
+            background: null
+            horizontalAlignment: TextInput.AlignRight
             
-            Text {
-                text: "󰸉"
-                font.family: "Symbols Nerd Font"
-                font.pixelSize: 20
-                color: colors.secondary
-            }
-            
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 2
-                
-                Text {
-                    text: "Wallpaper Directory"
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                    color: colors.text
-                }
-                
-                TextField {
-                    Layout.fillWidth: true
-                    text: Config.wallpaperDirectory
-                    font.pixelSize: 13
-                    color: colors.fg
-                    background: null
-                    // elide not supported
-                    
-                    onEditingFinished: {
-                        if (text !== "") Config.wallpaperDirectory = text
-                    }
-                }
+            onEditingFinished: {
+                if (text !== "") Config.wallpaperDirectory = text
             }
         }
     }
 }
+

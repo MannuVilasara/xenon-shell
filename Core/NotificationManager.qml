@@ -37,17 +37,29 @@ Item {
         Logger.d("NotifMan", "Removing notification with ID:", notifId);
         for (var i = 0; i < notifications.count; i++) {
             var item = notifications.get(i);
-            Logger.d("NotifMan", "  Checking index", i, "ID:", item.id);
             if (item.id === notifId) {
-                Logger.d("NotifMan", "  Found! Removing...");
-                if (item.ref)
-                    item.ref.dismiss();
-
+                Logger.d("NotifMan", "  Found! Dismissing and removing...");
+                if (item.ref) {
+                    try {
+                        item.ref.dismiss();
+                    } catch (e) {
+                         Logger.w("NotifMan", "Failed to dismiss notification (already destroyed?): " + e);
+                    }
+                }
                 notifications.remove(i);
                 return ;
             }
         }
         Logger.d("NotifMan", "  Not found!");
+    }
+
+    function removeSilent(notifId) {
+        for (var i = 0; i < notifications.count; i++) {
+            if (notifications.get(i).id === notifId) {
+                notifications.remove(i);
+                return;
+            }
+        }
     }
 
     function removeByRef(notificationRef) {
@@ -80,11 +92,18 @@ Item {
                 "time": Qt.formatTime(new Date(), "hh:mm")
             });
             Logger.d("NotifMan", "Notification added:", notification.summary, "ID:", uniqueId, "Total count:", root.notifications.count);
+            
+            // Force update popup even if visible
             root.currentPopup = notification;
             root.popupVisible = true;
+            root.popupVisibleChanged(); // Manually signal change if it was already true? No, bind to currentPopup in Toast.
+            
+            // Auto close timer
             popupTimer.restart();
+            
             notification.closed.connect(() => {
-                root.removeById(notification);
+                Logger.d("NotifMan", "Notification closed signal received for ID:", uniqueId);
+                root.removeSilent(uniqueId);
                 if (root.currentPopup === notification)
                     root.popupVisible = false;
 

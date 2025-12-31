@@ -32,54 +32,29 @@ ColumnLayout {
     }
 
     // OpenRGB Devices
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 64
-        radius: 12
-        color: colors.tile
-        border.width: 1
-        border.color: colors.border
-        
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 16
-            spacing: 12
+    SettingItem {
+        label: "OpenRGB Devices"
+        sublabel: "Device indices (comma separated)"
+        icon: "󰌌"
+        colors: context.colors
+
+        TextField {
+            Layout.preferredWidth: 350
+            // Hacky check for array
+            text: (Config.openRgbDevices && Array.isArray(Config.openRgbDevices)) 
+                    ? Config.openRgbDevices.join(", ") 
+                    : (Config.openRgbDevices || "")
+            placeholderText: "e.g. 0, 1"
+            font.pixelSize: 13
+            color: colors.fg
+            background: null
+            horizontalAlignment: TextInput.AlignRight
             
-            Text {
-                text: "󰌌"
-                font.family: "Symbols Nerd Font"
-                font.pixelSize: 20
-                color: colors.secondary
-            }
-            
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 2
-                
-                Text {
-                    text: "OpenRGB Devices (Indices)"
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                    color: colors.text
-                }
-                
-                TextField {
-                    Layout.fillWidth: true
-                    // Hacky check for array
-                    text: (Config.openRgbDevices && Array.isArray(Config.openRgbDevices)) 
-                          ? Config.openRgbDevices.join(", ") 
-                          : (Config.openRgbDevices || "")
-                    placeholderText: "e.g. 0, 1"
-                    font.pixelSize: 13
-                    color: colors.fg
-                    background: null
-                    
-                    onEditingFinished: {
-                        var parts = text.split(",").map(Number).filter(n => !isNaN(n));
-                        if (parts.length > 0) Config.openRgbDevices = parts;
-                    }
-                }
+            onEditingFinished: {
+                var parts = text.split(",").map(Number).filter(n => !isNaN(n));
+                if (parts.length > 0) Config.openRgbDevices = parts;
             }
         }
     }
 }
+
