@@ -18,7 +18,7 @@ WlSessionLockSurface {
     color: "black"
 
     // Animation properties
-    property bool expanded: false
+    property bool expanded: Config.disableLockAnimation
     property real expandedWidth: Math.min(width - 60, 920)
     property real expandedHeight: Math.min(height - 80, 480)
     property real collapsedSize: 120
@@ -51,7 +51,7 @@ WlSessionLockSurface {
         id: bg
         anchors.fill: parent
         captureSource: root.screen
-        opacity: 0
+        opacity: Config.disableLockAnimation ? 1 : 0
         layer.enabled: visible && opacity > 0 && !Config.disableLockBlur
 
         layer.effect: FastBlur {
@@ -65,7 +65,7 @@ WlSessionLockSurface {
         id: overlay
         anchors.fill: parent
         color: "#000000"
-        opacity: 0
+        opacity: Config.disableLockAnimation ? 0.45 : 0
     }
 
     // Morphing container - starts as lock icon, expands to bento grid
@@ -82,8 +82,8 @@ WlSessionLockSurface {
         border.width: root.expanded ? 0 : 2
         border.color: root.colors.accent
         
-        scale: 0
-        rotation: -180
+        scale: Config.disableLockAnimation ? 1 : 0
+        rotation: Config.disableLockAnimation ? 0 : -180
         
         Behavior on width {
             NumberAnimation { duration: 500; easing.type: Easing.OutBack; easing.overshoot: 1.02 }
@@ -889,7 +889,7 @@ WlSessionLockSurface {
     // INIT ANIMATION
     SequentialAnimation {
         id: initAnim
-        running: true
+        running: !Config.disableLockAnimation
 
         // Phase 1: Background + overlay fade in
         ParallelAnimation {
