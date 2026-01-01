@@ -25,6 +25,8 @@ Rectangle {
     required property string time
     property bool floating: true
     
+    // Track the state of the tray drawer
+    property bool trayOpen: false
 
     property var volumeService
     property var networkService
@@ -293,16 +295,89 @@ Rectangle {
         Item { Layout.fillWidth: true }
 
         // --------------------------------------------------------
-        // System Tray
+        // Collapsible System Tray
         // --------------------------------------------------------
-        Tray {
+        RowLayout {
             visible: SystemTray.items.values.length > 0
-            borderColor: colors.muted
-            itemHoverColor: colors.accent
-            iconSize: 16
-            // Optional: Hide specific apps
-            // blacklist: ["discord", "spotify"]
-            // hidePassive: true
+            spacing: 2 // Gap between arrow and drawer
+
+            // 1. The Sliding Drawer (Contains the Apps)
+            Rectangle {
+                clip: true
+                height: 26
+                radius: height / 2
+                color: Qt.rgba(0, 0, 0, 0.2) // Darker background for tray items
+                border.color: colors.muted
+                border.width: 1
+
+                // Animations for smooth slide effect
+                Layout.preferredWidth: trayOpen ? (trayInner.implicitWidth + 16) : 0
+                Layout.rightMargin: trayOpen ? 4 : 0
+                opacity: trayOpen ? 1 : 0
+
+                // Premium easing for the slide
+                Behavior on Layout.preferredWidth {
+                    NumberAnimation { duration: 350; easing.type: Easing.OutQuart }
+                }
+                Behavior on Layout.rightMargin {
+                    NumberAnimation { duration: 350; easing.type: Easing.OutQuart }
+                }
+                Behavior on opacity {
+                    NumberAnimation { duration: 250 }
+                }
+
+                // The actual Tray Icons
+                RowLayout {
+                    id: trayInner
+                    anchors.centerIn: parent
+                    spacing: 8
+                    
+                    Tray {
+                        borderColor: "transparent" // Remove individual borders
+                        itemHoverColor: colors.accent
+                        iconSize: 16
+                    }
+                }
+            }
+
+            // 2. The Toggle Arrow Button
+            Rectangle {
+                Layout.preferredWidth: 26
+                Layout.preferredHeight: 26
+                radius: height / 2
+                color: trayOpen ? colors.accent : "transparent"
+                border.color: colors.muted
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "" // Nerd Font Chevron Left (points to the drawer)
+                    font.family: "Symbols Nerd Font"
+                    font.pixelSize: 14
+                    color: trayOpen ? colors.bg : colors.fg
+                    
+                    // Rotate the arrow when opened
+                    rotation: trayOpen ? 180 : 0 
+                    Behavior on rotation {
+                        NumberAnimation { duration: 300; easing.type: Easing.OutBack }
+                    }
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onClicked: barRoot.trayOpen = !barRoot.trayOpen
+                    
+                    // Hover effect
+                    onEntered: parent.border.color = colors.accent
+                    onExited: parent.border.color = colors.muted
+                }
+                
+                Behavior on color { ColorAnimation { duration: 200 } }
+                Behavior on border.color { ColorAnimation { duration: 200 } }
+            }
         }
 
         VerticalDivider { 
