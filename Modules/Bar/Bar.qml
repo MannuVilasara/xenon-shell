@@ -4,8 +4,10 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.UPower
+import Quickshell.Services.SystemTray
 import qs.Core
 import qs.Services
+import qs.Widgets
 
 Rectangle {
     id: barRoot
@@ -289,6 +291,23 @@ Rectangle {
         }
 
         Item { Layout.fillWidth: true }
+
+        // --------------------------------------------------------
+        // System Tray
+        // --------------------------------------------------------
+        Tray {
+            visible: SystemTray.items.values.length > 0
+            borderColor: colors.muted
+            itemHoverColor: colors.accent
+            iconSize: 16
+            // Optional: Hide specific apps
+            // blacklist: ["discord", "spotify"]
+            // hidePassive: true
+        }
+
+        VerticalDivider { 
+            visible: SystemTray.items.values.length > 0 
+        }
 
         // 6. System Stats
         InfoPill {
