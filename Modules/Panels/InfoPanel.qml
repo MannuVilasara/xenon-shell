@@ -433,7 +433,7 @@ PanelWindow {
         id: weatherComp
 
         ColumnLayout {
-            spacing: 0
+            spacing: 16
 
             InfoViews.CalendarView {
                 Layout.fillWidth: true
