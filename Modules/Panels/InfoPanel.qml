@@ -65,6 +65,9 @@ PanelWindow {
         id: systemInfo
     }
 
+    // Keep WeatherService alive to prevent refetching on tab switch
+    property var _weatherKeepAlive: WeatherService
+
     Connections {
         target: globalState
         function onRequestInfoPanelTab(tabIndex) {
@@ -429,10 +432,20 @@ PanelWindow {
     Component {
         id: weatherComp
 
-        InfoViews.WeatherView {
-            theme: appColors
-        }
+        ColumnLayout {
+            spacing: 0
 
+            InfoViews.CalendarView {
+                Layout.fillWidth: true
+                bg: "#1E1E1E" // Same as forecast row bg
+                accent: "#FFB74D"
+            }
+
+            InfoViews.WeatherView {
+                Layout.fillWidth: true
+                theme: appColors
+            }
+        }
     }
 
     Component {
