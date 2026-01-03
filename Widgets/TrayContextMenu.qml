@@ -8,19 +8,19 @@ import Qt5Compat.GraphicalEffects
 PanelWindow {
     id: root
 
-    // --- Inputs ---
+    
     property var menuHandle: null
     property real menuX: 0
     property real menuY: 0
     property bool isOpen: false
 
-    // Theme Interface
+
     property var colors: QtObject {
-        property color bg: "#1e1e2e"       // Base
-        property color fg: "#cdd6f4"       // Text
-        property color accent: "#cba6f7"   // Mauve
-        property color muted: "#45475a"    // Surface 1
-        property color border: "#313244"   // Surface 0
+        property color bg: "#1e1e2e"
+        property color fg: "#cdd6f4"
+        property color accent: "#cba6f7"   
+        property color muted: "#45475a"
+        property color border: "#313244"   
     }
 
     function open(handle, x, y) {
@@ -29,13 +29,12 @@ PanelWindow {
         let width = 240; 
         let estimatedHeight = 300;
         
-        // Position menu to align with the bar (no gap)
-        // Center the menu under the clicked icon
+        
         let safeX = x - (width / 2);
         
-        // Ensure menu stays within screen bounds
+        
         safeX = Math.max(8, Math.min(safeX, Screen.width - width - 8));
-        let safeY = y; // Use exact Y position (no gap)
+        let safeY = y; 
 
         menuX = safeX;
         menuY = safeY-34;
@@ -55,14 +54,14 @@ PanelWindow {
         onTriggered: root.visible = false
     }
 
-    // --- Window Setup ---
+    
     color: "transparent"
     visible: false
     
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-    // FIX: PanelWindow anchors must be boolean flags
+    
     anchors {
         top: true
         bottom: true
@@ -70,7 +69,7 @@ PanelWindow {
         right: true
     }
 
-    // Click-outside handler
+    
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
@@ -78,7 +77,6 @@ PanelWindow {
         onClicked: root.close()
     }
 
-    // --- Menu Container ---
     Item {
         id: menuContainer
         
@@ -86,7 +84,7 @@ PanelWindow {
         y: root.menuY - 1
         width: 240
         
-        // Animate height to slide down from bar
+
         clip: true
         height: root.isOpen ? menuBox.height : 0
         
@@ -94,13 +92,12 @@ PanelWindow {
             NumberAnimation { duration: 300; easing.type: Easing.OutCubic } 
         }
         
-        // Fade in as it slides
+        
         opacity: root.isOpen ? 1.0 : 0.0
         Behavior on opacity { 
             NumberAnimation { duration: 250; easing.type: Easing.OutQuad } 
         }
 
-        // Shadow only on bottom and sides (not top)
         Rectangle {
             id: shadowSource
             anchors.fill: menuBox
@@ -122,7 +119,7 @@ PanelWindow {
             transparentBorder: true
         }
 
-        // --- The Card ---
+        
         Rectangle {
             id: menuBox
             width: parent.width
@@ -130,15 +127,13 @@ PanelWindow {
             color: "transparent"
             radius: 0
             clip: true
-            
-            // Background with rounded bottom corners
+
             Rectangle {
                 id: menuBackground
                 anchors.fill: parent
                 color: Qt.rgba(root.colors.bg.r, root.colors.bg.g, root.colors.bg.b, 0.95)
                 radius: 14
                 
-                // Cut off top to make it flat
                 Rectangle {
                     anchors.top: parent.top
                     anchors.left: parent.left
@@ -148,7 +143,7 @@ PanelWindow {
                 }
             }
             
-            // Border on sides and bottom only
+
             Rectangle {
                 anchors.fill: parent
                 color: "transparent"
@@ -156,7 +151,7 @@ PanelWindow {
                 border.color: root.colors.border
                 radius: 14
                 
-                // Hide top border
+
                 Rectangle {
                     anchors.top: parent.top
                     anchors.left: parent.left
@@ -189,7 +184,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: isSeparator ? 12 : 36
 
-                        // Separator Line
+
                         Rectangle {
                             visible: isSeparator
                             anchors.centerIn: parent
@@ -199,7 +194,6 @@ PanelWindow {
                             opacity: 0.5
                         }
 
-                        // Menu Item Background (Hover Pill)
                         Rectangle {
                             visible: !isSeparator
                             anchors.fill: parent
@@ -224,7 +218,7 @@ PanelWindow {
                             }
                         }
                         
-                        // Active Indicator (Small accent pill on left)
+                        
                         Rectangle {
                             visible: !isSeparator && isHovered
                             width: 3
@@ -236,7 +230,7 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
-                        // Content Row
+                        
                         RowLayout {
                             visible: !isSeparator
                             anchors.fill: parent
@@ -244,7 +238,7 @@ PanelWindow {
                             anchors.rightMargin: 12
                             spacing: 12
 
-                            // Icon
+                
                             Item {
                                 Layout.preferredWidth: 20
                                 Layout.preferredHeight: 20
@@ -263,7 +257,7 @@ PanelWindow {
                                     }
                                 }
                                 
-                                // Fallback Icon
+                                
                                 Text {
                                     anchors.centerIn: parent
                                     visible: !(modelData.icon !== undefined && modelData.icon !== "")
@@ -274,7 +268,7 @@ PanelWindow {
                                 }
                             }
 
-                            // Text
+                            
                             Text {
                                 text: modelData.text || ""
                                 color: isHovered ? root.colors.fg : Qt.rgba(root.colors.fg.r, root.colors.fg.g, root.colors.fg.b, 0.8)
@@ -286,7 +280,7 @@ PanelWindow {
                                 verticalAlignment: Text.AlignVCenter
                             }
                             
-                            // Checkmark
+                        
                             Text {
                                 visible: modelData.checkable && modelData.checked
                                 text: ""

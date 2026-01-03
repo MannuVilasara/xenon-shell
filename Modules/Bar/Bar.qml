@@ -153,7 +153,7 @@ Rectangle {
             property bool hasMedia: MprisService.title !== ""
             property real componentsOpacity: showInfo ? 1 : 0
 
-            Layout.preferredHeight: 28 // Slightly taller for better look
+            Layout.preferredHeight: 28 
             Layout.preferredWidth: showInfo ? Math.min(mediaContent.implicitWidth + 36, 300) : 28
             radius: 14 // Fully rounded
             color: showInfo ? Qt.rgba(0, 0, 0, 0.4) : "transparent"
@@ -195,7 +195,7 @@ Rectangle {
                     Image {
                         anchors.fill: parent
                         anchors.margins: 2
-                        source: MprisService.artUrl !== "" ? MprisService.artUrl : "../../Assets/music.svg" // Fallback
+                        source: MprisService.artUrl !== "" ? MprisService.artUrl : "../../Assets/music.svg" 
                         fillMode: Image.PreserveAspectCrop
                         layer.enabled: true
 
