@@ -379,8 +379,8 @@ Rectangle {
                 spacing: 6
                 
                 Text {
-                    text: networkService.wifiEnabled ? "󰖩" : "󰖪"
-                    color: networkService.wifiEnabled ? colors.purple : colors.muted
+                    text: networkService.ethernetConnected ? "󰈀" : (networkService.wifiEnabled ? "󰖩" : "󰖪")
+                    color: (networkService.ethernetConnected || networkService.wifiEnabled) ? colors.purple : colors.muted
                     font.family: "Symbols Nerd Font"
                     font.pixelSize: fontSize + 2
                     Layout.alignment: Qt.AlignBaseline
@@ -388,7 +388,11 @@ Rectangle {
 
                 Text {
                     id: tNet
-                    text: networkService.wifiEnabled ? (networkService.active ? networkService.active.ssid : "Disconnected") : "Off"
+                    text: {
+                         if (networkService.active) return networkService.active.ssid;
+                         if (networkService.ethernetConnected) return "Ethernet";
+                         return networkService.wifiEnabled ? "Disconnected" : "Off";
+                    }
                     color: colors.fg
                     font.pixelSize: fontSize - 1
                     font.family: fontFamily

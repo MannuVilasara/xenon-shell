@@ -94,6 +94,38 @@ Singleton {
         onExited: rescanProc.running = true
     }
 
+    property bool ethernetConnected: false
+
+    Process {
+        id: ethernetProc
+        command: ["nmcli", "-g", "TYPE,STATE", "device"]
+        stdout: SplitParser {
+            onRead: data => {
+                // Check if any line contains "ethernet:connected"
+                if (data.indexOf("ethernet:connected") !== -1) {
+                     root.ethernetConnected = true
+                } else if (data.indexOf("ethernet") !== -1 && data.indexOf("connected") === -1) {
+                     // Only reset if we see ethernet but it's not connected, 
+                     // or elaborate logic. simpler: just check the whole output chunk if possible?
+                     // SplitParser gives chunks. StdioCollector might be safer for full output parsing.
+                }
+            }
+        }
+    }
+    
+    // Better to use StdioCollector for full list check
+    Process {
+        id: ethernetCheck
+        command: ["nmcli", "-g", "TYPE,STATE", "device"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text) {
+                    root.ethernetConnected = text.indexOf("ethernet:connected") !== -1
+                }
+            }
+        }
+    }
+
     Timer {
         interval: 5000
         running: true
@@ -101,6 +133,7 @@ Singleton {
         triggeredOnStart: true
         onTriggered: {
             statusProc.running = true
+            ethernetCheck.running = true // Check ethernet
             if (wifiEnabled) getNetworks.running = true // Periodic update without full rescan
         }
     }

@@ -131,7 +131,7 @@ Control {
                     spacing: 2
 
                     Text {
-                        text: NetworkService.active ? NetworkService.active.ssid : "Not Connected"
+                        text: NetworkService.active ? NetworkService.active.ssid : (NetworkService.ethernetConnected ? "Ethernet" : "Not Connected")
                         color: theme.text
                         font.bold: true
                         font.pixelSize: 14
@@ -140,8 +140,8 @@ Control {
                     }
 
                     Text {
-                        text: NetworkService.active ? "Connected" : "Disconnected"
-                        color: NetworkService.active ? theme.accentActive : theme.muted
+                        text: NetworkService.active ? "Connected" : (NetworkService.ethernetConnected ? "Connected" : "Disconnected")
+                        color: (NetworkService.active || NetworkService.ethernetConnected) ? theme.accentActive : theme.muted
                         font.pixelSize: 12
                     }
 
@@ -240,13 +240,16 @@ Control {
 
         Text {
             visible: !NetworkService.wifiEnabled
-            text: "Wi-Fi is Off"
-            color: theme.muted
+            text: NetworkService.ethernetConnected ? "Ethernet Connected" : "Wi-Fi is Off"
+            color: NetworkService.ethernetConnected ? theme.accentActive : theme.muted
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.fillWidth: true
             Layout.fillHeight: true
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            
+            // Optional icon above text
+            font.bold: NetworkService.ethernetConnected
         }
 
     }
