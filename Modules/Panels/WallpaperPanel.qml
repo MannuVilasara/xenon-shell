@@ -79,7 +79,7 @@ PanelWindow {
     }
 
     Timer { id: openTimer; interval: 10; onTriggered: root.internalOpen = true }
-    Timer { id: closeTimer; interval: 400; onTriggered: root.visible = false }
+    Timer { id: closeTimer; interval: 250; onTriggered: root.visible = false }
 
     Colors { id: theme }
 
@@ -101,7 +101,7 @@ PanelWindow {
             y: root.internalOpen ? 0 : slideContainer.height
             Behavior on y {
                 NumberAnimation { 
-                    duration: 400
+                    duration: 250
                     easing.type: Easing.OutCubic
                 }
             }
@@ -170,7 +170,7 @@ PanelWindow {
                 keyNavigationEnabled: true
                 focus: true
                 highlightFollowsCurrentItem: true
-                highlightMoveDuration: 300
+                highlightMoveDuration: 200
                 preferredHighlightBegin: itemWidth + spacing
                 preferredHighlightEnd: itemWidth * 2 + spacing
                 highlightRangeMode: ListView.StrictlyEnforceRange
@@ -192,14 +192,9 @@ PanelWindow {
                 Keys.onUpPressed: currentIndex = (currentIndex + 1) % count
                 Keys.onDownPressed: currentIndex = (currentIndex - 1 + count) % count
                 
-                highlight: Rectangle {
-                    radius: 18
-                    color: "transparent"
-                    border.width: 3
-                    border.color: theme.accent
+                highlight: Item {
                     z: 10
-                    
-                    Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on x { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
                 }
 
                 delegate: Item {
@@ -224,19 +219,19 @@ PanelWindow {
                         radius: 16
                         color: theme.bg
                         
-                        border.width: isSelected ? 4 : (isCurrent ? 3 : (isHovered ? 2 : 0))
-                        border.color: isSelected ? theme.accent : (isCurrent ? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.7) : Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.4))
+                        border.width: isHovered ? 2 : 0
+                        border.color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.4)
                         
                         Behavior on border.width { NumberAnimation { duration: 200 } }
                         Behavior on border.color { ColorAnimation { duration: 200 } }
                         Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                         Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                         
-                        scale: isHovered ? 1.05 : 1.0
+                        scale: (delegateRoot.isHovered || delegateRoot.isCurrent) ? 1.05 : 1.0
                         Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
                         
-                        opacity: isCurrent ? 1.0 : 0.65
-                        Behavior on opacity { NumberAnimation { duration: 300 } }
+                        opacity: isCurrent ? 1.0 : 0.5
+                        Behavior on opacity { NumberAnimation { duration: 200 } }
                         
                         Image {
                             id: img
@@ -274,26 +269,39 @@ PanelWindow {
                         }
                         
                         Rectangle {
-                            anchors.fill: parent
-                            radius: parent.radius
-                            color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.15)
-                            visible: isSelected
+                            anchors.bottom: parent.bottom
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.bottomMargin: -6
                             
-                            Rectangle {
+                            width: 32
+                            height: 32
+                            radius: 16
+                            color: theme.accent
+                            
+                            visible: delegateRoot.isSelected
+                            
+                           transform: Translate {
+                                y: delegateRoot.isSelected ? 0 : 10
+                                Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+                            }
+                            
+                            Text {
                                 anchors.centerIn: parent
-                                width: 48
-                                height: 48
-                                radius: 24
-                                color: theme.accent
-                                
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: ""
-                                    font.family: "Symbols Nerd Font"
-                                    font.pixelSize: 24
-                                    color: theme.bg
-                                    font.bold: true
-                                }
+                                text: ""
+                                font.family: "Symbols Nerd Font"
+                                font.pixelSize: 16
+                                color: theme.bg
+                                font.bold: true
+                            }
+                            
+                            layer.enabled: true
+                            layer.effect: DropShadow {
+                                transparentBorder: true
+                                horizontalOffset: 0
+                                verticalOffset: 2
+                                radius: 8
+                                samples: 16
+                                color: Qt.rgba(0,0,0,0.2)
                             }
                         }
                         
