@@ -1,303 +1,327 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-// Try standard module import first, but the relative import below ensures it works
-import qs.Services 
+import Qt5Compat.GraphicalEffects
 import "../../../Services" as LocalServices
 
-Item {
+ColumnLayout {
     id: root
+    
+    // --- Context & Theme ---
+    property var context
+    property var colors: context.colors
+    
+    width: parent.width
+    spacing: 40 // Generous spacing for modern look
 
-    // --- Automatic Distro Fetcher ---
-    // Uses the corrected service
+    // --- Services ---
     LocalServices.DistroInfoService {
         id: distroInfo
     }
 
-    // --- Exposed Properties (Bound to Fetcher) ---
+    // --- Properties ---
     property string distroName: distroInfo.name
     property string distroUrl: distroInfo.url
     property string distroIcon: distroInfo.icon
-    
     property string distroBugUrl: distroInfo.bugUrl !== "" ? distroInfo.bugUrl : distroInfo.url
     property string distroSupportUrl: distroInfo.supportUrl !== "" ? distroInfo.supportUrl : distroInfo.url
-    
-    property string dotfilesName: "illogical-impulse"
-    property string dotfilesUrl: "https://github.com/end-4/dots-hyprland"
-    property string dotfilesIcon: "" 
 
-    // --- Theme Specification ---
-    property color backgroundColor: "#1e1e2e" // Dark Base
-    property color cardColor: "#313244"       // Surface 1
-    property color textPrimary: "#ffffff"     // White
-    property color textSecondary: "#a6adc8"   // Muted Gray
-    property color accentColor: "#89b4fa"     // Blue Accent
-    property int cornerRadius: 16
-
-    implicitWidth: 600
-    implicitHeight: 800
-
-    // --- Main Layout ---
+    // =========================================================================
+    // SECTION 1: DISTRO HERO
+    // =========================================================================
     Rectangle {
-        anchors.fill: parent
-        color: root.backgroundColor
-
-        ScrollView {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 280
+        color: colors.surface
+        radius: 24
+        
+        // Gradient overlay for depth
+        Rectangle {
             anchors.fill: parent
-            contentWidth: availableWidth
-            clip: true
-
-            ColumnLayout {
-                width: parent.width
-                spacing: 24
-                
-                // Outer Padding
-                anchors.margins: 24
-                anchors.topMargin: 24
-                anchors.bottomMargin: 24
-                
-                // 1. Distro Section (Dynamic Data)
-                AboutCard {
-                    iconSource: root.distroIcon
-                    titleText: root.distroName
-                    linkUrl: root.distroUrl
-                    
-                    actions: [
-                        { icon: "", label: "Website", url: root.distroUrl },
-                        { icon: "", label: "Support", url: root.distroSupportUrl },
-                        { icon: "", label: "Report Bug", url: root.distroBugUrl },
-                        { icon: "", label: "Privacy", url: root.distroUrl }
-                    ]
-                }
-
-                // 2. Dotfiles Section
-                AboutCard {
-                    iconSource: root.dotfilesIcon
-                    titleText: root.dotfilesName
-                    linkUrl: root.dotfilesUrl
-                    
-                    actions: [
-                        { icon: "", label: "Docs", url: root.dotfilesUrl + "#readme" },
-                        { icon: "", label: "Issues", url: root.dotfilesUrl + "/issues" },
-                        { icon: "", label: "Discuss", url: root.dotfilesUrl + "/discussions" },
-                        { icon: "", label: "Donate", url: "https://ko-fi.com/" }
-                    ]
-                }
-
-                // 3. Contributors Section
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 12
-                    Layout.topMargin: 8
-
-                    Text {
-                        text: "Core Developers"
-                        font.pixelSize: 18
-                        font.bold: true
-                        color: root.textPrimary
-                        Layout.leftMargin: 4
-                    }
-
-                    GridLayout {
-                        columns: 2 
-                        columnSpacing: 16
-                        rowSpacing: 16
-                        Layout.fillWidth: true
-
-                        Repeater {
-                            model: [
-                                { name: "Manpreet Vilasara", url: "https://github.com/mannuvilasara" },
-                                { name: "Keshav Gilhotra", url: "https://github.com/ikeshav26" }
-                            ]
-
-                            delegate: ContributorCard {
-                                name: modelData.name
-                                role: modelData.role
-                                url: modelData.url
-                                Layout.fillWidth: true
-                            }
-                        }
-                    }
-                }
-                
-                Item { height: 24; Layout.fillWidth: true }
+            radius: 24
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.05) }
+                GradientStop { position: 1.0; color: "transparent" }
             }
         }
-    }
 
-    // --- Reusable Components ---
-
-    component AboutCard : Rectangle {
-        id: cardRoot
-        property string iconSource
-        property string titleText
-        property string linkUrl
-        property var actions: []
-
-        Layout.fillWidth: true
-        implicitHeight: cardCol.implicitHeight + 48 
-        color: root.cardColor
-        radius: root.cornerRadius
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.05)
+        border.color: Qt.rgba(colors.border.r, colors.border.g, colors.border.b, 0.3)
 
         ColumnLayout {
-            id: cardCol
-            anchors.fill: parent
-            anchors.margins: 24
-            spacing: 24
-
-            RowLayout {
-                spacing: 20
-                Layout.fillWidth: true
-
-                Rectangle {
-                    Layout.preferredWidth: 64
-                    Layout.preferredHeight: 64
-                    radius: 16
-                    color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.1)
-                    
-                    Text {
-                        anchors.centerIn: parent
-                        text: cardRoot.iconSource
-                        font.family: "Symbols Nerd Font"
-                        font.pixelSize: 32
-                        color: root.accentColor
-                    }
-                }
-
-                ColumnLayout {
-                    spacing: 4
-                    Layout.fillWidth: true
-                    
-                    Text {
-                        text: cardRoot.titleText
-                        font.pixelSize: 24
-                        font.bold: true
-                        color: root.textPrimary
-                    }
-                    
-                    Text {
-                        text: cardRoot.linkUrl
-                        font.pixelSize: 14
-                        color: root.accentColor
-                        font.underline: urlHover.containsMouse
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                        
-                        MouseArea {
-                            id: urlHover
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            hoverEnabled: true
-                            onClicked: Qt.openUrlExternally(cardRoot.linkUrl)
-                        }
-                    }
-                }
-            }
-
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: Qt.rgba(1, 1, 1, 0.1)
-            }
-
-            Flow {
-                Layout.fillWidth: true
-                spacing: 12
-                
-                Repeater {
-                    model: cardRoot.actions
-                    delegate: Rectangle {
-                        width: actionRow.implicitWidth + 32
-                        height: 36
-                        radius: 18 
-                        color: actionHover.containsMouse ? Qt.rgba(1, 1, 1, 0.1) : "transparent"
-                        border.width: 1
-                        border.color: Qt.rgba(1, 1, 1, 0.1)
-                        
-                        MouseArea {
-                            id: actionHover
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Qt.openUrlExternally(modelData.url)
-                        }
-
-                        RowLayout {
-                            id: actionRow
-                            anchors.centerIn: parent
-                            spacing: 8
-                            Text { 
-                                text: modelData.icon
-                                font.family: "Symbols Nerd Font"
-                                color: root.textSecondary 
-                            }
-                            Text { 
-                                text: modelData.label
-                                color: root.textPrimary 
-                                font.weight: Font.Medium
-                                font.pixelSize: 13
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    component ContributorCard : Rectangle {
-        property string name
-        property string role
-        property string url
-        
-        implicitHeight: 80
-        color: root.cardColor
-        radius: 12
-        border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.05)
-        
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: Qt.openUrlExternally(url)
-            onEntered: parent.color = Qt.lighter(root.cardColor, 1.1)
-            onExited: parent.color = root.cardColor
-        }
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 16
-            spacing: 16
+            anchors.centerIn: parent
+            spacing: 20
             
-            Rectangle {
-                width: 48; height: 48
-                radius: 24
-                color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.2)
+            // Glowing Icon
+            Item {
+                Layout.alignment: Qt.AlignHCenter
+                width: 100; height: 100
+                
+                // Glow
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 80; height: 80
+                    radius: 40
+                    color: colors.accent
+                    opacity: 0.15
+                    scale: 1.2
+                }
                 
                 Text {
                     anchors.centerIn: parent
-                    text: name.charAt(0)
-                    font.bold: true
-                    font.pixelSize: 20
-                    color: root.accentColor
+                    text: root.distroIcon
+                    font.family: "Symbols Nerd Font"
+                    font.pixelSize: 80
+                    color: colors.accent
                 }
             }
             
+            // Text Info
             ColumnLayout {
-                spacing: 2
-                Text { 
-                    text: name
-                    font.bold: true
-                    font.pixelSize: 16
-                    color: root.textPrimary 
+                spacing: 4
+                
+                Text {
+                    text: root.distroName
+                    font.pixelSize: 28
+                    font.weight: Font.Bold
+                    color: colors.fg
+                    Layout.alignment: Qt.AlignHCenter
                 }
-                Text { 
-                    text: role
-                    font.pixelSize: 13
-                    color: root.textSecondary 
+                
+                Text {
+                    text: "Operating System"
+                    font.pixelSize: 14
+                    color: colors.muted
+                    font.weight: Font.Medium
+                    Layout.alignment: Qt.AlignHCenter
                 }
+            }
+            
+            // Action Pills
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 12
+                
+                ActionPill { icon: ""; label: "Website"; url: root.distroUrl }
+                ActionPill { icon: ""; label: "Support"; url: root.distroSupportUrl }
+                ActionPill { icon: ""; label: "Issues"; url: root.distroBugUrl }
+            }
+        }
+    }
+
+    // =========================================================================
+    // SECTION 2: CORE DEVELOPERS
+    // =========================================================================
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 16
+        
+        // Section Header
+        RowLayout {
+            spacing: 12
+            Rectangle {
+                width: 4; height: 24
+                radius: 2
+                color: colors.accent
+            }
+            Text {
+                text: "Core Developers"
+                font.pixelSize: 18
+                font.weight: Font.Bold
+                color: colors.fg
+            }
+        }
+
+        // Responsive Grid
+        GridLayout {
+            Layout.fillWidth: true
+            columns: root.width > 500 ? 2 : 1
+            columnSpacing: 16
+            rowSpacing: 16
+
+            Repeater {
+                model: [
+                    { 
+                        name: "Manpreet Vilasara", 
+                        role: "Lead Developer", 
+                        url: "https://github.com/mannuvilasara", 
+                        image: "/etc/xdg/quickshell/mannu/Assets/mannu.png" 
+                    },
+                    { 
+                        name: "Keshav Gilhotra", 
+                        role: "Core Developer", 
+                        url: "https://github.com/ikeshav26", 
+                        image: "/etc/xdg/quickshell/mannu/Assets/keshav.png" 
+                    }
+                ]
+
+                delegate: Rectangle {
+                    id: devCard
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 100
+                    
+                    radius: 20
+                    color: colors.surface
+                    
+                    border.width: 1
+                    border.color: hoverHandler.hovered ? colors.accent : Qt.rgba(colors.border.r, colors.border.g, colors.border.b, 0.4)
+                    
+                    // Hover Animations
+                    scale: hoverHandler.hovered ? 1.02 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                    Behavior on border.color { ColorAnimation { duration: 200 } }
+
+                    HoverHandler {
+                        id: hoverHandler
+                        cursorShape: Qt.PointingHandCursor
+                    }
+                    
+                    TapHandler {
+                        onTapped: Qt.openUrlExternally(modelData.url)
+                    }
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 16
+                        spacing: 16
+                        
+                        // Avatar Circle
+                        Item {
+                            Layout.preferredWidth: 68
+                            Layout.preferredHeight: 68
+                            
+                            // Image Container
+                            Image {
+                                id: avatar
+                                anchors.fill: parent
+                                source: "file://" + modelData.image
+                                sourceSize: Qt.size(68, 68)
+                                fillMode: Image.PreserveAspectCrop
+                                smooth: true
+                                visible: false // Hidden, used for mask
+                                
+                                onStatusChanged: {
+                                    if (status === Image.Error) fallback.visible = true;
+                                }
+                            }
+                            
+                            // Circle Mask
+                            OpacityMask {
+                                anchors.fill: parent
+                                source: avatar
+                                maskSource: Rectangle {
+                                    width: 68; height: 68
+                                    radius: 34
+                                    visible: true
+                                }
+                                visible: avatar.status === Image.Ready
+                            }
+                            
+                            // Fallback Initials
+                            Rectangle {
+                                id: fallback
+                                anchors.fill: parent
+                                radius: 34
+                                color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.2)
+                                visible: avatar.status !== Image.Ready
+                                
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData.name.charAt(0)
+                                    font.bold: true
+                                    font.pixelSize: 24
+                                    color: colors.accent
+                                }
+                            }
+                        }
+                        
+                        // Info
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            
+                            Text {
+                                text: modelData.name
+                                font.pixelSize: 16
+                                font.weight: Font.Bold
+                                color: colors.fg
+                            }
+                            
+                            Text {
+                                text: modelData.role
+                                font.pixelSize: 13
+                                color: colors.muted
+                                font.weight: Font.Medium
+                            }
+                        }
+                        
+                        // Arrow Icon
+                        Rectangle {
+                            width: 32; height: 32
+                            radius: 16
+                            color: hoverHandler.hovered ? colors.accent : "transparent"
+                            border.width: 1
+                            border.color: hoverHandler.hovered ? colors.accent : colors.muted
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                            
+                            Text {
+                                anchors.centerIn: parent
+                                text: "" // Github icon
+                                font.family: "Symbols Nerd Font"
+                                color: hoverHandler.hovered ? colors.bg : colors.muted
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    Item { Layout.fillHeight: true } // Bottom spacer
+
+    // --- Components ---
+
+    component ActionPill : Rectangle {
+        id: pill
+        property string icon
+        property string label
+        property string url
+        
+        implicitWidth: pillRow.implicitWidth + 24
+        implicitHeight: 32
+        radius: 16
+        
+        color: pillHover.containsMouse ? colors.accent : "transparent"
+        border.width: 1
+        border.color: pillHover.containsMouse ? colors.accent : Qt.rgba(colors.border.r, colors.border.g, colors.border.b, 0.5)
+        
+        Behavior on color { ColorAnimation { duration: 150 } }
+        
+        MouseArea {
+            id: pillHover
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Qt.openUrlExternally(pill.url)
+        }
+
+        RowLayout {
+            id: pillRow
+            anchors.centerIn: parent
+            spacing: 8
+            
+            Text {
+                text: pill.icon
+                font.family: "Symbols Nerd Font"
+                color: pillHover.containsMouse ? colors.bg : colors.muted
+                font.pixelSize: 14
+            }
+            
+            Text {
+                text: pill.label
+                font.weight: Font.Medium
+                color: pillHover.containsMouse ? colors.bg : colors.fg
+                font.pixelSize: 12
             }
         }
     }
