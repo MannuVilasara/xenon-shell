@@ -156,6 +156,12 @@ FloatingWindow {
                         page: "Services"
                     }
 
+                    SidebarItem {
+                        label: "About"
+                        icon: "󰒋"
+                        page: "About"
+                    }
+
                     Item {
                         Layout.fillHeight: true
                     }
@@ -293,12 +299,14 @@ FloatingWindow {
                                 return "Pages/InterfacePage.qml";
                             case "Services":
                                 return "Pages/ServicesPage.qml";
+                            case "About":
+                                return "Pages/AboutPage.qml";    
                             default:
                                 return "Pages/GeneralPage.qml";
                             }
                         }
                         onLoaded: {
-                            item.context = context; // Inject context
+                            item.context = context; 
                         }
                     }
 
