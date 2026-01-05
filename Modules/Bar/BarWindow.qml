@@ -15,6 +15,7 @@ Variants {
         property string position: root.context.config.barPosition || "top"
 
         screen: modelData
+        visible: root.context.colors.isLoaded
         implicitHeight: 34
         color: "transparent"
 

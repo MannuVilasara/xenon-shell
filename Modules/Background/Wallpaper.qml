@@ -255,7 +255,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: "#1e1e2e"
-        visible: root.source === ""
+        visible: root.source === "" && WallpaperService.isInitialized
         z: 10
 
         ColumnLayout {

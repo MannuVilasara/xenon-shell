@@ -3,24 +3,24 @@ import Quickshell
 import Quickshell.Io
 
 Item {
-    property color bg: loadedColors ? (loadedColors.surface.dark || "#1a1b26") : "#1a1b26"
-    property color fg: loadedColors ? (loadedColors.on_surface.dark || "#a9b1d6") : "#a9b1d6"
-    property color muted: loadedColors ? (loadedColors.surface_variant.dark || "#444b6a") : "#444b6a"
+    property color bg: loadedColors ? (loadedColors.surface.dark || "transparent") : "transparent"
+    property color fg: loadedColors ? (loadedColors.on_surface.dark || "transparent") : "transparent"
+    property color muted: loadedColors ? (loadedColors.surface_variant.dark || "transparent") : "transparent"
     property color cyan: "#0db9d7"
     property color purple: "#ad8ee6"
-    property color red: loadedColors ? (loadedColors.error.dark || "#f7768e") : "#f7768e"
+    property color red: loadedColors ? (loadedColors.error.dark || "transparent") : "transparent"
     property color yellow: "#e0af68"
-    property color blue: loadedColors ? (loadedColors.primary.dark || "#7aa2f7") : "#7aa2f7"
+    property color blue: loadedColors ? (loadedColors.primary.dark || "transparent") : "transparent"
     property color green: "#9ece6a"
-    property color surface: loadedColors ? (loadedColors.surface_container.dark || "#24283b") : "#24283b"
-    property color border: loadedColors ? (loadedColors.outline.dark || "#414868") : "#414868"
-    property color subtext: loadedColors ? (loadedColors.on_surface_variant.dark || "#565f89") : "#565f89"
+    property color surface: loadedColors ? (loadedColors.surface_container.dark || "transparent") : "transparent"
+    property color border: loadedColors ? (loadedColors.outline.dark || "transparent") : "transparent"
+    property color subtext: loadedColors ? (loadedColors.on_surface_variant.dark || "transparent") : "transparent"
     property color orange: "#ff9e64"
-    property color teal: loadedColors ? (loadedColors.secondary.dark || "#73daca") : "#73daca"
-    property color accent: loadedColors ? (loadedColors.primary.dark || "#7aa2f7") : "#7aa2f7"
+    property color teal: loadedColors ? (loadedColors.secondary.dark || "transparent") : "transparent"
+    property color accent: loadedColors ? (loadedColors.primary.dark || "transparent") : "transparent"
     property color text: fg
-    property color tile: loadedColors ? (loadedColors.surface_variant.dark || "#444b6a") : "#444b6a"
-    property color tileActive: loadedColors ? (loadedColors.secondary_container.dark || "#3b4261") : "#3b4261"
+    property color tile: loadedColors ? (loadedColors.surface_variant.dark || "transparent") : "transparent"
+    property color tileActive: loadedColors ? (loadedColors.secondary_container.dark || "transparent") : "transparent"
     property color accentActive: accent
     property color urgent: red
     property color secondary: subtext
@@ -34,6 +34,7 @@ Item {
     property color sliderFill: accent
     property color sliderThumb: fg
     property var loadedColors: null
+    readonly property bool isLoaded: loadedColors !== null
 
     function refreshColors() {
         try {
@@ -74,7 +75,7 @@ Item {
             refreshColors();
         }
         onLoadFailed: {
-            Logger.w("Colors", "File load failed.");
+            Logger.w("Colors", "File load failed, using defaults.");
         }
     }
 
