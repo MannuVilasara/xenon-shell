@@ -32,4 +32,118 @@ ColumnLayout {
                 Config.use24HourFormat = active;
         }
     }
+
+    SettingItem {
+        label: "Time Zone"
+        sublabel: "Choose the time zone for displaying time and date"
+        icon: "󰃰"
+        colors: context.colors
+
+        ComboBox {
+            id: tzCombo
+
+            Layout.preferredWidth: 240
+            Layout.fillWidth: true
+            
+            model: context.timezone.timeZones
+            
+            currentIndex: {
+                if (context.timezone.currentSystemZone === "" || count === 0)
+                    return -1;
+                return context.timezone.timeZones.indexOf(context.timezone.currentSystemZone);
+            }
+
+            font.family: Config.fontFamily
+            font.pixelSize: 14
+            
+            onActivated: {
+                var selected = model[currentIndex];
+                if (selected && selected !== context.timezone.currentSystemZone) {
+                    context.timezone.setTimeZone(selected);
+                }
+            }
+
+            contentItem: Text {
+                leftPadding: 12
+                rightPadding: tzCombo.indicator.width + tzCombo.spacing
+                text: tzCombo.displayText !== "" ? tzCombo.displayText : (context.timezone.timeZones.length === 0 ? "Loading..." : "Select Timezone")
+                font: tzCombo.font
+                color: colors.fg
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+
+            background: Rectangle {
+                implicitWidth: 150
+                implicitHeight: 36
+                color: tzCombo.pressed ? Qt.rgba(0, 0, 0, 0.3) : Qt.rgba(0, 0, 0, 0.2)
+                border.color: tzCombo.activeFocus ? colors.accent : colors.border
+                border.width: tzCombo.activeFocus ? 2 : 1
+                radius: 8
+            }
+
+            indicator: Text {
+                x: tzCombo.width - width - 12
+                y: tzCombo.topPadding + (tzCombo.availableHeight - height) / 2
+                text: "󰅀"
+                font.family: "Symbols Nerd Font"
+                font.pixelSize: 16
+                color: colors.fg
+            }
+
+            popup: Popup {
+                y: tzCombo.height + 4
+                width: tzCombo.width
+                // Limit height to prevent taking up whole screen
+                height: Math.min(contentItem.implicitHeight, 300)
+                padding: 4
+
+                contentItem: ListView {
+                    clip: true
+                    implicitHeight: contentHeight
+                    model: tzCombo.popup.visible ? tzCombo.delegateModel : null
+                    currentIndex: tzCombo.highlightedIndex
+
+                    ScrollBar.vertical: ScrollBar {
+                        active: true
+                        policy: ScrollBar.AsNeeded
+                        width: 6
+                        contentItem: Rectangle {
+                            implicitWidth: 6
+                            radius: 3
+                            color: colors.accent
+                            opacity: 0.5
+                        }
+                    }
+                }
+
+                background: Rectangle {
+                    color: colors.surface
+                    border.color: colors.border
+                    border.width: 1
+                    radius: 8
+                }
+            }
+
+            delegate: ItemDelegate {
+                width: tzCombo.width - 8
+                implicitHeight: 36
+                highlighted: tzCombo.highlightedIndex === index
+
+                contentItem: Text {
+                    text: modelData
+                    font: tzCombo.font
+                    color: colors.fg
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                    leftPadding: 12
+                }
+
+                background: Rectangle {
+                    color: parent.highlighted ? colors.tile : "transparent"
+                    radius: 6
+                }
+            }
+        }
+    }
 }
