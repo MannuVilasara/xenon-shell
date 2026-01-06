@@ -22,29 +22,28 @@ PanelWindow {
     readonly property int peekWidth: 10
     readonly property int boxWidth: 320
     property bool forcedOpen: false
-    property bool controlHovered: controlHandler.hovered || controlPeekHandler.hovered
-    property bool notifHovered: notifHandler.hovered || notifPeekHandler.hovered
     property bool controlOpen: false
     property bool notifOpen: false
-    property bool toastHovered: false
-    property bool hoverLocked: Config.disableHover
+
     property string currentMenu: ""
 
+    property bool anyOpen: controlOpen || notifOpen || forcedOpen
+
     function show() {
-        forcedOpen = true;
         controlOpen = true;
         notifOpen = true;
+        forcedOpen = true;
     }
 
     function hide() {
-        forcedOpen = false;
         controlOpen = false;
         notifOpen = false;
+        forcedOpen = false;
         menuLoader.active = false;
     }
 
-    function getX(isOpen) {
-        return isOpen ? (root.width - root.boxWidth - 20) : (root.width - root.peekWidth);
+    function getX(open) {
+        return open ? (root.width - root.boxWidth - 20) : (root.width - root.peekWidth);
     }
 
     function toggleMenu(menu) {
@@ -54,6 +53,7 @@ PanelWindow {
         } else {
             root.currentMenu = menu;
             menuLoader.active = true;
+            root.controlOpen = true; // Ensure control panel opens
         }
     }
 
@@ -62,19 +62,7 @@ PanelWindow {
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusiveZone: -1
-    mask: (menuLoader.active || forcedOpen) ? fullMask : splitMask
-    onControlHoveredChanged: {
-        if (controlHovered && !hoverLocked) {
-            controlTimer.stop();
-            controlOpen = true;
-        }
-    }
-    onNotifHoveredChanged: {
-        if (notifHovered && !hoverLocked) {
-            notifTimer.stop();
-            notifOpen = true;
-        }
-    }
+    mask: (root.controlOpen || root.notifOpen || root.forcedOpen) ? fullMask : splitMask
 
     anchors {
         top: true
@@ -161,13 +149,10 @@ PanelWindow {
     Connections {
         function onRequestSidePanelMenu(menu) {
             if (root.currentMenu === menu && root.controlOpen) {
-                toggleMenu(menu);
-                root.controlOpen = false;
+                toggleMenu(menu); // This will close it if same menu
+                if (root.currentMenu === "") root.controlOpen = false;
             } else {
-                if (root.currentMenu !== menu)
-                    toggleMenu(menu);
-
-                root.controlOpen = true;
+                toggleMenu(menu);
             }
         }
 
@@ -177,7 +162,7 @@ PanelWindow {
     MouseArea {
         anchors.fill: parent
         z: -100
-        enabled: menuLoader.active || forcedOpen
+        enabled: root.controlOpen || root.notifOpen || root.forcedOpen
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: {
             root.hide();
@@ -185,35 +170,17 @@ PanelWindow {
         }
     }
 
-    Timer {
-        id: controlTimer
-
-        interval: 100
-        repeat: false
-        running: !root.controlHovered && !menuLoader.active && !root.forcedOpen && !root.notifHovered && !root.toastHovered && !root.hoverLocked
-        onTriggered: root.controlOpen = false
-    }
-
-    Timer {
-        id: notifTimer
-
-        interval: 100
-        repeat: false
-        running: !root.notifHovered && !root.forcedOpen && !root.controlHovered && !root.toastHovered && !root.hoverLocked
-        onTriggered: root.notifOpen = false
-    }
-
     Rectangle {
         id: controlBox
 
         width: root.boxWidth
-        height: contentCol.height + 32 // 16px top + 16px bottom padding
+        height: contentCol.height + 32
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
         x: root.getX(root.controlOpen || menuLoader.active || root.forcedOpen)
         radius: 16
         color: Qt.rgba(theme.bg.r, theme.bg.g, theme.bg.b, 0.95)
-        clip: true // Ensure content doesn't bleed during animation
+        clip: true 
         layer.enabled: root.controlOpen || menuLoader.active || root.forcedOpen
 
         Column {
@@ -285,20 +252,18 @@ PanelWindow {
 
         Behavior on x {
             NumberAnimation {
-                duration: 300
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
+                duration: 250
+                easing.type: Easing.OutBack
+                easing.overshoot: 0.8
             }
-
         }
 
         Behavior on height {
-            NumberAnimation {
-                duration: 500
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
+             NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutBack
+                easing.overshoot: 0.8
             }
-
         }
 
     }
@@ -329,7 +294,7 @@ PanelWindow {
     Rectangle {
         id: notifBox
 
-        property int maxAvailableHeight: root.height - controlBox.height - 40 - 20 // 40 top, 20 spacing
+        property int maxAvailableHeight: root.height - controlBox.height - 40 - 20 
 
         width: root.boxWidth
         anchors.bottom: controlBox.top
@@ -361,21 +326,19 @@ PanelWindow {
         }
 
         Behavior on x {
-            NumberAnimation {
-                duration: 300
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
+             NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutBack
+                easing.overshoot: 0.8
             }
-
         }
 
         Behavior on height {
-            NumberAnimation {
-                duration: 300
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: [0.38, 1.21, 0.22, 1, 1, 1]
+             NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutBack
+                easing.overshoot: 0.8
             }
-
         }
 
     }
@@ -390,6 +353,12 @@ PanelWindow {
         HoverHandler {
             id: controlPeekHandler
         }
+        
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.controlOpen = !root.controlOpen
+        }
 
     }
 
@@ -402,6 +371,12 @@ PanelWindow {
 
         HoverHandler {
             id: notifPeekHandler
+        }
+        
+         MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.notifOpen = !root.notifOpen
         }
 
     }

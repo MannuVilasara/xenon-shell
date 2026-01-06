@@ -20,18 +20,6 @@ ColumnLayout {
         color: colors.fg
     }
 
-    ToggleButton {
-        Layout.fillWidth: true
-        label: "Disable Hover Effects"
-        sublabel: "Reduce animations for performance"
-        icon: "󰏇"
-        active: Config.disableHover
-        colors: context.colors
-        onActiveChanged: {
-            if (Config.disableHover !== active)
-                Config.disableHover = active;
 
-        }
-    }
 
 }

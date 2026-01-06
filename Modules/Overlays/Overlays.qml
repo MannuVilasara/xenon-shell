@@ -32,7 +32,7 @@ Item {
         globalState: root.context.appState
         notifManager: notifManager
         colors: root.context.colors
-        toastHovered: toast.hovered || false
+
         volumeService: root.context.volume
         bluetoothService: root.context.bluetooth
     }
@@ -97,22 +97,10 @@ Item {
         }
 
         function toggle() {
-            if (sidePanel.forcedOpen)
+            if (sidePanel.anyOpen)
                 sidePanel.hide();
             else
                 sidePanel.show();
-        }
-
-        function lock() {
-            sidePanel.hoverLocked = true;
-        }
-
-        function unlock() {
-            sidePanel.hoverLocked = false;
-        }
-
-        function toggleLock() {
-            sidePanel.hoverLocked = !sidePanel.hoverLocked;
         }
 
         target: "sidePanel"
