@@ -133,6 +133,12 @@ FloatingWindow {
                     }
 
                     SidebarItem {
+                        label: "Time & Date"
+                        icon: "󰃰"
+                        page: "Time-Date"
+                    }
+
+                    SidebarItem {
                         label: "Background"
                         icon: "󰸉"
                         page: "Background"
@@ -302,6 +308,8 @@ FloatingWindow {
                                 return "Pages/ServicesPage.qml";
                             case "About":
                                 return "Pages/AboutPage.qml";
+                            case "Time-Date":
+                                return "Pages/TimeDatePage.qml";
                             default:
                                 return "Pages/GeneralPage.qml";
                             }

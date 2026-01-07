@@ -163,7 +163,7 @@ Item {
                 "image": notification.image,
                 "urgency": notification.urgency,
                 "actions": notification.actions,
-                "time": Qt.formatTime(new Date(), "hh:mm"),
+                "time": Qt.formatTime(new Date(), Config.use24HourFormat ? "HH:mm" : "hh:mm AP"),
                 "expireTime": Date.now() + 5000
             };
             root.notifications.insert(0, entry);

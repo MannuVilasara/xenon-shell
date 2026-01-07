@@ -13,6 +13,7 @@ Item {
     property alias mem: memService
     property alias disk: diskService
     property alias time: timeService
+    property alias timezone: timezoneService
     property alias volume: volumeService
     property alias activeWindow: compositorService
     property alias layout: compositorService
@@ -42,6 +43,10 @@ Item {
 
     TimeService {
         id: timeService
+    }
+
+    TimeZone {
+        id: timezoneService
     }
 
     Compositor {

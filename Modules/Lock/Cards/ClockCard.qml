@@ -1,6 +1,7 @@
 import "../Components"
 import QtQuick
 import QtQuick.Layouts
+import qs.Core
 
 BentoCard {
     id: root
@@ -9,6 +10,8 @@ BentoCard {
     property int hours: new Date().getHours()
     property int minutes: new Date().getMinutes()
     property int seconds: new Date().getSeconds()
+    property bool isPM: hours >= 12
+    property int displayHours: Config.use24HourFormat ? hours : ((hours % 12) || 12)
 
     cardColor: colors.surface
     borderColor: colors.border
@@ -22,6 +25,8 @@ BentoCard {
             root.hours = now.getHours();
             root.minutes = now.getMinutes();
             root.seconds = now.getSeconds();
+            root.isPM = root.hours >= 12;
+            root.displayHours = Config.use24HourFormat ? root.hours : ((root.hours % 12) || 12);
         }
     }
 
@@ -30,7 +35,7 @@ BentoCard {
         spacing: 12
 
         Text {
-            text: root.hours.toString().padStart(2, '0') + ":" + root.minutes.toString().padStart(2, '0')
+            text: root.displayHours.toString().padStart(2, '0') + ":" + root.minutes.toString().padStart(2, '0') + (Config.use24HourFormat ? "" : (root.isPM ? " PM" : " AM"))
             font.pixelSize: 48
             font.weight: Font.Bold
             font.family: "JetBrainsMono Nerd Font"
