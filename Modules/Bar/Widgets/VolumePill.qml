@@ -36,8 +36,8 @@ Rectangle {
 
             Behavior on Layout.preferredWidth {
                 NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
+                    duration: 350
+                    easing.type: Easing.InOutQuad
                 }
 
             }
@@ -71,8 +71,8 @@ Rectangle {
 
             Behavior on Layout.preferredWidth {
                 NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
+                    duration: 350
+                    easing.type: Easing.InOutQuad
                 }
 
             }
@@ -84,8 +84,8 @@ Rectangle {
 
             Behavior on Layout.preferredWidth {
                 NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
+                    duration: 350
+                    easing.type: Easing.InOutQuad
                 }
 
             }
