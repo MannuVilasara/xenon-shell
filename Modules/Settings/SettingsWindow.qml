@@ -159,7 +159,8 @@ FloatingWindow {
 
                     SidebarItem {
                         label: "About"
-                        icon: "󰒋"
+                        // icon: Icons.arch
+                        imageSource: "../../Assets/logo.svg"
                         page: "About"
                     }
 
@@ -170,6 +171,7 @@ FloatingWindow {
                     component SidebarItem: Rectangle {
                         property string label
                         property string icon
+                        property string imageSource: ""
                         property string page
                         property bool isActive: root.activePage === page
                         property color inactiveColor: Qt.rgba(colors.fg.r, colors.fg.g, colors.fg.b, 0.5)
@@ -192,6 +194,17 @@ FloatingWindow {
                                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                 Layout.fillWidth: sidebarCollapsed
                                 horizontalAlignment: Text.AlignHCenter
+                                visible: imageSource === ""
+                            }
+
+                            Image {
+                                source: imageSource
+                                sourceSize: Qt.size(20, 20)
+                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                Layout.fillWidth: sidebarCollapsed
+                                horizontalAlignment: Image.AlignHCenter
+                                visible: imageSource !== ""
+                                smooth: true
                             }
 
                             Text {

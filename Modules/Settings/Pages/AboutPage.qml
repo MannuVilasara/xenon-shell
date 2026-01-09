@@ -69,14 +69,15 @@ ColumnLayout {
         RowLayout {
             anchors.fill: parent
             anchors.margins: 24
-            spacing: 24
+            spacing: 44
 
             Rectangle {
                 Layout.preferredWidth: 100
                 Layout.preferredHeight: 100
+                Layout.leftMargin: 20
                 Layout.alignment: Qt.AlignVCenter
                 radius: 50
-                color: Qt.rgba(colors.accent.r, colors.accent.g, colors.accent.b, 0.15)
+                color: "transparent"
 
                 Text {
                     anchors.centerIn: parent
@@ -144,7 +145,7 @@ ColumnLayout {
 
     Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 140
+        Layout.preferredHeight: 180
         color: colors.surface
         radius: 20
         border.width: 1
@@ -153,17 +154,20 @@ ColumnLayout {
         RowLayout {
             anchors.fill: parent
             anchors.margins: 24
-            spacing: 24
+            spacing: 44
 
-            Item {
-                Layout.preferredWidth: 80
-                Layout.preferredHeight: 80
+            Rectangle {
+                Layout.preferredWidth: 100
+                Layout.preferredHeight: 100
+                Layout.leftMargin: 20
                 Layout.alignment: Qt.AlignVCenter
+                radius: 50
+                color: "transparent"
 
                 Image {
-                    anchors.fill: parent
+                    anchors.centerIn: parent
                     source: "../../../Assets/logo.svg"
-                    sourceSize: Qt.size(80, 80)
+                    sourceSize: Qt.size(64, 64)
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                 }
@@ -177,14 +181,14 @@ ColumnLayout {
 
                 Text {
                     text: "Shell Configuration"
-                    font.pixelSize: 20
+                    font.pixelSize: 28
                     font.weight: Font.Bold
                     color: colors.fg
                 }
 
                 Text {
                     text: "Custom Quickshell config by Mannu"
-                    font.pixelSize: 13
+                    font.pixelSize: 14
                     color: Qt.rgba(colors.fg.r, colors.fg.g, colors.fg.b, 0.6)
                 }
 
