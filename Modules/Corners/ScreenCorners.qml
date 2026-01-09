@@ -21,13 +21,28 @@ PanelWindow {
         bottom: true
     }
 
+    property int barHeight: {
+        switch (context.config.barSize) {
+            case "compact": return 35;
+            case "expanded": return 50;
+            default: return 40;
+        }
+    }
+
+    Behavior on barHeight {
+        NumberAnimation {
+            duration: 300
+            easing.type: Easing.OutQuad
+        }
+    }
+
     RoundCorner {
         id: topLeft
 
         size: 25
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.topMargin: (!context.config.floatingBar && context.config.barPosition === "top") ? 34 : 0
+        anchors.topMargin: (!context.config.floatingBar && context.config.barPosition === "top") ? barHeight : 0
         corner: RoundCorner.CornerEnum.TopLeft
         color: context.colors.bg
     }
@@ -38,7 +53,7 @@ PanelWindow {
         size: 25
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.topMargin: (!context.config.floatingBar && context.config.barPosition === "top") ? 34 : 0
+        anchors.topMargin: (!context.config.floatingBar && context.config.barPosition === "top") ? barHeight : 0
         corner: RoundCorner.CornerEnum.TopRight
         color: context.colors.bg
     }
@@ -49,7 +64,7 @@ PanelWindow {
         size: 25
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: (!context.config.floatingBar && context.config.barPosition === "bottom") ? 34 : 0
+        anchors.bottomMargin: (!context.config.floatingBar && context.config.barPosition === "bottom") ? barHeight : 0
         corner: RoundCorner.CornerEnum.BottomLeft
         color: context.colors.bg
     }
@@ -60,7 +75,7 @@ PanelWindow {
         size: 25
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: (!context.config.floatingBar && context.config.barPosition === "bottom") ? 34 : 0
+        anchors.bottomMargin: (!context.config.floatingBar && context.config.barPosition === "bottom") ? barHeight : 0
         corner: RoundCorner.CornerEnum.BottomRight
         color: context.colors.bg
     }

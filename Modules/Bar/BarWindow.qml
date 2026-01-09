@@ -16,7 +16,20 @@ Variants {
 
         screen: modelData
         visible: root.context.colors.isLoaded
-        implicitHeight: 34
+        implicitHeight: {
+            switch (root.context.config.barSize) {
+                case "compact": return 35;
+                case "expanded": return 50;
+                default: return 40;
+            }
+        }
+
+        Behavior on implicitHeight {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+        }
         color: "transparent"
 
         anchors {

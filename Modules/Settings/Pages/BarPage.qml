@@ -65,6 +65,110 @@ ColumnLayout {
     }
 
     SettingItem {
+        label: "Bar Size"
+        sublabel: "Choose the height of the top bar"
+        icon: "󰖳"
+        colors: context.colors
+
+        ComboBox {
+            id: sizeCombo
+
+            Layout.preferredWidth: 120
+            Layout.fillWidth: true
+            model: ["Compact", "Fluid", "Expanded"]
+            currentIndex: {
+                var size = Config.barSize.toLowerCase();
+                if (size === "compact") return 0;
+                if (size === "expanded") return 2;
+                return 1;
+            }
+            font.family: Config.fontFamily
+            font.pixelSize: 14
+            onActivated: {
+                var sizes = ["compact", "fluid", "expanded"];
+                Config.barSize = sizes[currentIndex];
+            }
+
+            contentItem: Text {
+                leftPadding: 12
+                rightPadding: sizeCombo.indicator.width + sizeCombo.spacing
+                text: sizeCombo.displayText
+                font: sizeCombo.font
+                color: colors.fg
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+
+            background: Rectangle {
+                implicitWidth: 150
+                implicitHeight: 36
+                color: sizeCombo.pressed ? Qt.rgba(0, 0, 0, 0.3) : Qt.rgba(0, 0, 0, 0.2)
+                border.color: sizeCombo.activeFocus ? colors.accent : colors.border
+                border.width: sizeCombo.activeFocus ? 2 : 1
+                radius: 8
+            }
+
+            indicator: Text {
+                x: sizeCombo.width - width - 12
+                y: sizeCombo.topPadding + (sizeCombo.availableHeight - height) / 2
+                text: "󰅀"
+                font.family: "Symbols Nerd Font"
+                font.pixelSize: 16
+                color: colors.fg
+            }
+
+            popup: Popup {
+                y: sizeCombo.height + 4
+                width: sizeCombo.width
+                implicitHeight: contentItem.implicitHeight
+                padding: 4
+
+                contentItem: ListView {
+                    clip: true
+                    implicitHeight: contentHeight
+                    model: sizeCombo.popup.visible ? sizeCombo.delegateModel : null
+                    currentIndex: sizeCombo.highlightedIndex
+
+                    ScrollIndicator.vertical: ScrollIndicator {
+                    }
+
+                }
+
+                background: Rectangle {
+                    color: colors.surface
+                    border.color: colors.border
+                    border.width: 1
+                    radius: 8
+                }
+
+            }
+
+            delegate: ItemDelegate {
+                width: sizeCombo.width - 8
+                implicitHeight: 36
+                highlighted: sizeCombo.highlightedIndex === index
+
+                contentItem: Text {
+                    text: modelData
+                    font: sizeCombo.font
+                    color: colors.fg
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                    leftPadding: 12
+                }
+
+                background: Rectangle {
+                    color: parent.highlighted ? colors.tile : "transparent"
+                    radius: 6
+                }
+
+            }
+
+        }
+
+    }
+
+    SettingItem {
         label: "Bar Position"
         sublabel: "Choose where the bar appears on screen"
         icon: "󰘻"

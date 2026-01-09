@@ -13,6 +13,7 @@ Singleton {
     property bool disableHover: false
     property bool floatingBar: false
     property string barPosition: "top"
+    property string barSize: "fluid"
     property var colors: null
     property var openRgbDevices: [0]
     property bool disableLockBlur: false
@@ -37,6 +38,7 @@ Singleton {
         configAdapter.disableHover = root.disableHover;
         configAdapter.floatingBar = root.floatingBar;
         configAdapter.barPosition = root.barPosition;
+        configAdapter.barSize = root.barSize;
         configAdapter.hideWorkspaceNumbers = root.hideWorkspaceNumbers;
         configAdapter.hideAppIcons = root.hideAppIcons;
         configAdapter.colors = root.colors;
@@ -94,6 +96,11 @@ Singleton {
 
     }
     onBarPositionChanged: {
+        if (!_loading)
+            saveTimer.restart();
+
+    }
+    onBarSizeChanged: {
         if (!_loading)
             saveTimer.restart();
 
@@ -177,6 +184,9 @@ Singleton {
                 if (configAdapter.barPosition)
                     root.barPosition = configAdapter.barPosition;
 
+                if (configAdapter.barSize)
+                    root.barSize = configAdapter.barSize;
+
                 if (configAdapter.colors)
                     root.colors = configAdapter.colors;
 
@@ -236,6 +246,7 @@ Singleton {
             property bool disableHover
             property bool floatingBar
             property string barPosition
+            property string barSize
             property var colors
             property var openRgbDevices
             property bool disableLockBlur
