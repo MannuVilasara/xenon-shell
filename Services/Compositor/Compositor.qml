@@ -83,7 +83,7 @@ Item {
             property bool isSpecialOpen: {
                  if (!focusedMonitor || !monitorsInfo) return false
                  const m = monitorsInfo.find(m => m.id === focusedMonitor.id)
-                 return m && m.specialWorkspace && m.specialWorkspace.name !== ""
+                 return (m && m.specialWorkspace && m.specialWorkspace.name !== "") || false
             }
             property int workspaceCount: {
                 let max = 5
