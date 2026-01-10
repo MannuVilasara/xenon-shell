@@ -4,61 +4,135 @@ import QtQuick.Layouts
 import Quickshell
 import qs.Core
 import qs.Services
+import qs.Widgets
 
 Rectangle {
-    id: mediaWidget
+    id: root
 
     required property var colors
     required property string fontFamily
     required property int fontSize
     required property var globalState
-    property bool showInfo: false
-    property bool hasMedia: MprisService.title !== ""
-    property real componentsOpacity: showInfo ? 1 : 0
+    readonly property bool isPlaying: MprisService.isPlaying
+    readonly property bool hasMedia: MprisService.title !== ""
 
-    Layout.preferredHeight: 28
-    Layout.preferredWidth: showInfo ? Math.min(mediaContent.implicitWidth + 36, 300) : 28
-    radius: 14 // Fully rounded
-    color: showInfo ? Qt.rgba(0, 0, 0, 0.4) : "transparent"
-    border.color: colors.accent
-    border.width: (showInfo || MprisService.isPlaying) ? 1 : 0
-    clip: true
+    Layout.preferredHeight: 30
+    Layout.alignment: Qt.AlignVCenter
+    implicitWidth: layout.implicitWidth + 8
+    radius: height / 2
+    color: "transparent"
 
-    MouseArea {
-        id: mediaMouse
-
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        cursorShape: Qt.PointingHandCursor
-        onClicked: (mouse) => {
-            if (mouse.button === Qt.LeftButton)
-                mediaWidget.globalState.requestInfoPanelTab(1);
-            else if (mouse.button === Qt.RightButton)
-                parent.showInfo = !parent.showInfo;
-        }
+    HoverHandler {
+        id: hoverHandler
     }
 
-    Item {
-        id: vinylContainer
+    TapHandler {
+        onTapped: root.globalState.requestInfoPanelTab(1)
+    }
 
-        width: 24
-        height: 24
-        anchors.left: parent.left
-        anchors.leftMargin: 2
-        anchors.verticalCenter: parent.verticalCenter
+    RowLayout {
+        id: layout
 
+        anchors.centerIn: parent
+        spacing: 0
+        width: parent.width
+
+        // Spacing animation
+        Item {
+            Layout.preferredWidth: hoverHandler.hovered ? 8 : 4
+
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: 250
+                    easing.type: Easing.OutCubic
+                }
+
+            }
+
+        }
+
+        // Text Container
+        Item {
+            id: textContainer
+
+            Layout.preferredWidth: hoverHandler.hovered ? Math.min(textMetrics.width, 200) : 0
+            Layout.preferredHeight: root.height
+            clip: true
+
+            Text {
+                id: mediaText
+
+                anchors.verticalCenter: parent.verticalCenter
+                text: {
+                    if (MprisService.playerCount === 0 || MprisService.title === "No Media")
+                        return "No Media Playing";
+
+                    let t = MprisService.title;
+                    let a = MprisService.artist;
+                    if (a !== "" && a !== "Unknown Artist")
+                        return t + " • " + a;
+
+                    return t;
+                }
+                color: root.colors.fg
+                font.pixelSize: root.fontSize
+                font.family: root.fontFamily
+                font.bold: true
+                elide: Text.ElideRight
+                width: parent.width
+            }
+
+            TextMetrics {
+                id: textMetrics
+
+                font: mediaText.font
+                text: mediaText.text
+            }
+
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: 250
+                    easing.type: Easing.OutCubic
+                }
+
+            }
+
+        }
+
+        // Spacing
+        Item {
+            Layout.preferredWidth: hoverHandler.hovered ? 8 : 0
+
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: 250
+                    easing.type: Easing.OutCubic
+                }
+
+            }
+
+        }
+
+        // Icon / Art Container
         Rectangle {
-            anchors.fill: parent
+            Layout.preferredWidth: 24
+            Layout.preferredHeight: 24
             radius: 12
-            color: "#1a1a1a"
-            border.color: colors.accent
-            border.width: 1
+            color: root.isPlaying ? Qt.rgba(root.colors.green.r, root.colors.green.g, root.colors.green.b, 0.2) : Qt.rgba(root.colors.muted.r, root.colors.muted.g, root.colors.muted.b, 0.2)
+
+            Icon {
+                anchors.centerIn: parent
+                icon: Icons.music
+                color: root.colors.fg
+                font.pixelSize: root.fontSize
+                visible: MprisService.artUrl === ""
+            }
 
             Image {
                 anchors.fill: parent
                 anchors.margins: 2
-                source: MprisService.artUrl !== "" ? MprisService.artUrl : "../../../Assets/music.svg"
+                source: MprisService.artUrl
+                visible: MprisService.artUrl !== ""
                 fillMode: Image.PreserveAspectCrop
                 layer.enabled: true
 
@@ -74,85 +148,15 @@ Rectangle {
 
             }
 
-            Rectangle {
-                width: 6
-                height: 6
-                radius: 3
-                color: "#2a2a2a"
-                anchors.centerIn: parent
-                border.color: "#000000"
-                border.width: 1
+            // Rotating animation for playing state
+            RotationAnimation on rotation {
+                from: 0
+                to: 360
+                duration: 4000
+                loops: Animation.Infinite
+                running: root.isPlaying && MprisService.artUrl !== ""
             }
 
-        }
-
-        RotationAnimation on rotation {
-            from: 0
-            to: 360
-            duration: 4000
-            loops: Animation.Infinite
-            running: MprisService.isPlaying
-        }
-
-    }
-
-    RowLayout {
-        id: mediaContent
-
-        anchors.left: vinylContainer.right
-        anchors.leftMargin: 12
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: 12
-        opacity: mediaWidget.componentsOpacity
-        visible: opacity > 0
-
-        Text {
-            text: {
-                let t = MprisService.title !== "" ? MprisService.title : "No Media";
-                let a = MprisService.artist;
-                if (a !== "" && a !== "Unknown Artist")
-                    return t + " • " + a;
-
-                return t;
-            }
-            font.family: fontFamily
-            font.pixelSize: fontSize - 1
-            font.bold: true
-            color: colors.fg
-            elide: Text.ElideRight
-            Layout.fillWidth: true
-            Layout.maximumWidth: 160
-            Layout.alignment: Qt.AlignVCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: Animations.fast
-            }
-
-        }
-
-    }
-
-    Behavior on Layout.preferredWidth {
-        NumberAnimation {
-            duration: Animations.medium
-            easing.type: Animations.enterEasing
-        }
-
-    }
-
-    Behavior on color {
-        ColorAnimation {
-            duration: Animations.fast
-        }
-
-    }
-
-    Behavior on border.width {
-        NumberAnimation {
-            duration: Animations.fast
         }
 
     }

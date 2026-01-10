@@ -33,7 +33,7 @@ Singleton {
     }
 
     function init() {
-        Logger.i("Wallpaper", "Starting service")
+        Logger.i("Wallpaper", "Starting service");
         Ipc.createDirs();
         Qt.callLater(loadFromCache);
         Qt.callLater(loadFromCache);
