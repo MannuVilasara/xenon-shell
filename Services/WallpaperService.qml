@@ -21,6 +21,7 @@ Singleton {
     property string colorsCacheFile: Quickshell.env("HOME") + "/.cache/mannu/colors.json"
     property string defaultWallpaper: ""
     property string previewDirectory: Quickshell.env("HOME") + "/.cache/mannu/wallpreviews_large"
+    readonly property string systemDefaultWallpaper: Quickshell.shellDir + "/Assets/default_wallpaper.png"
     property var availableOpenRgbDevices: []
 
     signal wallpaperChanged(string screenName, string path)
@@ -32,7 +33,7 @@ Singleton {
     }
 
     function init() {
-        Logger.i("Wallpaper", "Starting service");
+        Logger.i("Wallpaper", "Starting service")
         Ipc.createDirs();
         Qt.callLater(loadFromCache);
         Qt.callLater(loadFromCache);
@@ -45,7 +46,7 @@ Singleton {
     }
 
     function getWallpaper(screenName) {
-        return currentWallpapers[screenName] || root.defaultWallpaper;
+        return currentWallpapers[screenName] || root.defaultWallpaper || root.systemDefaultWallpaper;
     }
 
     function changeWallpaper(path, screenName) {
