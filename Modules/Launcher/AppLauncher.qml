@@ -21,7 +21,7 @@ PanelWindow {
     readonly property int itemSpacing: 2
     property var usageCounts: ({
     })
-    readonly property string usageFilePath: Quickshell.env("HOME") + "/.cache/mannu/app-usage.json"
+    readonly property string usageFilePath: Quickshell.env("HOME") + "/.cache/xenon/app-usage.json"
     property var filteredApps: {
         var apps = DesktopEntries.applications.values;
         var q = query.toLowerCase().trim();
@@ -126,7 +126,7 @@ PanelWindow {
     Process {
         id: usageFileWriter
 
-        command: ["sh", "-c", "mkdir -p ~/.cache/mannu && cat > " + root.usageFilePath]
+        command: ["sh", "-c", "mkdir -p ~/.cache/xenon && cat > " + root.usageFilePath]
         running: false
         onStarted: {
             write(JSON.stringify(root.usageCounts));

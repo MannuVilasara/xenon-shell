@@ -64,7 +64,7 @@ Item {
     FileView {
         id: colorsFile
 
-        path: Quickshell.env("HOME") + "/.cache/mannu/colors.json"
+        path: Quickshell.env("HOME") + "/.cache/xenon/colors.json"
         watchChanges: true
         onFileChanged: {
             Logger.d("Colors", "File changed, reloading...");

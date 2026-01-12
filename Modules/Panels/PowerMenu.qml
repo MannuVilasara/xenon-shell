@@ -20,7 +20,7 @@ PanelWindow {
     readonly property var buttonsModel: [{
         "name": "Lock",
         "icon": Icons.lock,
-        "command": "quickshell ipc -c mannu call lock lock",
+        "command": "quickshell ipc -c xenon call lock lock",
         "shortcut": "L"
     }, {
         "name": "Suspend",
@@ -30,7 +30,7 @@ PanelWindow {
     }, {
         "name": "Reload",
         "icon": Icons.reload,
-        "command": "pkill qs && qs -c mannu &",
+        "command": "pkill qs && qs -c xenon &",
         "shortcut": "D"
     }, {
         "name": "Reboot",

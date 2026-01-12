@@ -17,10 +17,10 @@ Singleton {
     property int scanningCount: 0
     readonly property bool scanning: (scanningCount > 0)
     property bool isInitialized: false
-    property string wallpaperCacheFile: Quickshell.env("HOME") + "/.cache/mannu/wallpapers.json"
-    property string colorsCacheFile: Quickshell.env("HOME") + "/.cache/mannu/colors.json"
+    property string wallpaperCacheFile: Quickshell.env("HOME") + "/.cache/xenon/wallpapers.json"
+    property string colorsCacheFile: Quickshell.env("HOME") + "/.cache/xenon/colors.json"
     property string defaultWallpaper: ""
-    property string previewDirectory: Quickshell.env("HOME") + "/.cache/mannu/wallpreviews_large"
+    property string previewDirectory: Quickshell.env("HOME") + "/.cache/xenon/wallpreviews_large"
     readonly property string systemDefaultWallpaper: Quickshell.shellDir + "/Assets/default_wallpaper.png"
     property var availableOpenRgbDevices: []
 
@@ -72,7 +72,7 @@ Singleton {
         saveTimer.restart();
         root.wallpaperChanged(screenName, path);
         Logger.d("Wallpaper", "Set wallpaper for", screenName, "to", path);
-        Ipc.copyWallpaper(path, Quickshell.env("HOME") + "/.cache/mannu/current_wallpaper");
+        Ipc.copyWallpaper(path, Quickshell.env("HOME") + "/.cache/xenon/current_wallpaper");
         generateColors(path);
     }
 
@@ -81,7 +81,7 @@ Singleton {
             return ;
 
         var cachePath = colorsCacheFile;
-        var logPath = Quickshell.env("HOME") + "/.cache/mannu/matugen.log";
+        var logPath = Quickshell.env("HOME") + "/.cache/xenon/matugen.log";
         var cmd = "/usr/bin/matugen image '" + path + "' -j hex > '" + cachePath + "' 2> '" + logPath + "'";
         Logger.d("Wallpaper", "Generating colors:", cmd);
         Ipc.runMatugen(cmd);
@@ -101,7 +101,7 @@ Singleton {
 
     function refreshWallpapersList() {
         Logger.d("Wallpaper", "Refreshing wallpapers list");
-        Ipc.generateThumbnails("/etc/xdg/quickshell/mannu/Scripts/generate_previews.py", root.defaultDirectory, root.previewDirectory);
+        Ipc.generateThumbnails("/etc/xdg/quickshell/xenon/Scripts/generate_previews.py", root.defaultDirectory, root.previewDirectory);
         scanningCount = 0;
         for (var i = 0; i < wallpaperScanners.count; i++) {
             var scanner = wallpaperScanners.objectAt(i);
